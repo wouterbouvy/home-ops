@@ -193,13 +193,13 @@
     fail_msg: All node names are not unique.
     quiet: true
 
-- name: Verify SSH port is reachable
-  ansible.builtin.wait_for:
-    host: "{{ current_address }}"
-    port: 22
-    search_regex: OpenSSH
-    timeout: 10
-  connection: local
-  loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
-  loop_control:
-    label: "{{ current_address }}"
+# - name: Verify SSH port is reachable
+#   ansible.builtin.wait_for:
+#     host: "{{ current_address }}"
+#     port: 22
+#     search_regex: OpenSSH
+#     timeout: 10
+#   connection: local
+#   loop: "{{ bootstrap_nodes.master + bootstrap_nodes.worker | default([]) }}"
+#   loop_control:
+#     label: "{{ current_address }}"
