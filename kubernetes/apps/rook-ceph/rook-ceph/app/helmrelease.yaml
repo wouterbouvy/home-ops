@@ -33,7 +33,7 @@ spec:
   #       enabled: true
     monitoring:
       enabled: true
-    enableDiscoveryDaemon: true
+    enableDiscoveryDaemon: false
     resources:
       requests:
         cpu: 100m
