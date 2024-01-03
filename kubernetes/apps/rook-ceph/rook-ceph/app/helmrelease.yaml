@@ -34,6 +34,7 @@ spec:
     monitoring:
       enabled: true
     enableDiscoveryDaemon: true
+    discoveryDaemonInterval: 5m
     resources:
       requests:
         cpu: 100m
