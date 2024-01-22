@@ -133,7 +133,8 @@ spec:
           requests:
             # cpu: "50m"
             memory: "50Mi"
-
+    cephFileSystems: []
+    cephObjectStores: []
     #     config:
     #       osdsPerDevice: "1"
     #     nodes:
