@@ -133,8 +133,8 @@ spec:
           requests:
             cpu: null
             memory: null
-    # cephFileSystems: []
-    # cephObjectStores: []
+    cephFileSystems: []
+    cephObjectStores: []
     #     config:
     #       osdsPerDevice: "1"
     #     nodes:
