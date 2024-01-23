@@ -71,7 +71,7 @@ spec:
             cpu: null
             memory: null
           requests:
-            cpu: null
+            cpu: "500m"
             memory: null
         mon:
           limits:
