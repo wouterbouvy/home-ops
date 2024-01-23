@@ -26,11 +26,11 @@ spec:
   values:
     hajimari:
       title: Apps
-      darkTheme: espresso
+      darkTheme: lime
       alwaysTargetBlank: true
       showGreeting: false
       showAppGroups: false
-      showAppStatus: true
+      showAppStatus: false
       showBookmarkGroups: false
       showGlobalBookmarks: false
       showAppUrls: false
