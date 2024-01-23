@@ -35,10 +35,11 @@ spec:
       showGlobalBookmarks: false
       showAppUrls: false
       defaultEnable: true
-      # namespaceSelector:
-      #   matchNames:
-      #     - default
-      #     - monitoring
+      namespaceSelector:
+        matchNames:
+          - default
+          - monitoring
+          - rook-ceph
     ingress:
       main:
         enabled: true
