@@ -33,11 +33,11 @@ spec:
   #       enabled: true
     monitoring:
       enabled: true
-    # enableDiscoveryDaemon: true
-    # discoveryDaemonInterval: 5m
+    enableDiscoveryDaemon: true
+    discoveryDaemonInterval: 5m
     resources:
       requests:
-        cpu: 100m
-        memory: 128M
+        cpu: null
+        memory: null
       limits:
-        memory: 512M
+        memory: null
