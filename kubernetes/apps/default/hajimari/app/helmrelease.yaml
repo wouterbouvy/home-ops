@@ -41,6 +41,7 @@ spec:
           - monitoring
           - rook-ceph
           - kube-system
+          - networking
     ingress:
       main:
         enabled: true
