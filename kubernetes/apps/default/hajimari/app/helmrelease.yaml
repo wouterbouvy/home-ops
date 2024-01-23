@@ -30,7 +30,7 @@ spec:
       alwaysTargetBlank: true
       showGreeting: false
       showAppGroups: false
-      showAppStatus: false
+      showAppStatus: true
       showBookmarkGroups: false
       showGlobalBookmarks: false
       showAppUrls: false
@@ -40,6 +40,7 @@ spec:
           - default
           - monitoring
           - rook-ceph
+          - kube-system
     ingress:
       main:
         enabled: true
