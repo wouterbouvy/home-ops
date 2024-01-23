@@ -37,7 +37,7 @@ spec:
     discoveryDaemonInterval: 5m
     resources:
       requests:
-        cpu: null
-        memory: null
+        cpu: 100m
+        memory: 128M
       limits:
-        memory: null
+        memory: 512M
