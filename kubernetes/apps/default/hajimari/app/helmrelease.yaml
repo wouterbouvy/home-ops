@@ -35,10 +35,10 @@ spec:
       showGlobalBookmarks: false
       showAppUrls: false
       defaultEnable: true
-      namespaceSelector:
-        matchNames:
-          - default
-          - monitoring
+      # namespaceSelector:
+      #   matchNames:
+      #     - default
+      #     - monitoring
     ingress:
       main:
         enabled: true
