@@ -7,7 +7,7 @@ metadata:
 data:
   TIMEZONE: "Europe/Amsterdam"
   COREDNS_ADDR: "10.245.0.10"
-  KUBE_VIP_ADDR: "10.0.88.4"
+  # KUBE_VIP_ADDR: "10.0.88.4"
   CLUSTER_CIDR: "10.244.0.0/16"
   SERVICE_CIDR: "10.245.0.0/16"
   NODE_CIDR: "10.0.88.0/24"
