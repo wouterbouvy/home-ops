@@ -39,7 +39,6 @@ spec:
         matchNames:
           - default
           - monitoring
-          - rook-ceph
           - kube-system
           - networking
     ingress:
