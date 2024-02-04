@@ -15,7 +15,18 @@ spec:
         name: longhorn
         namespace: flux-system
       interval: 5m
-  # values:
+  values:
+    ingress:
+      enabled: true
+      ingressClassName: internal
+      hosts:
+        - host: &host "longhorn.${SECRET_DOMAIN}"
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - hosts:
+            - *host
   #   vpa:
   #     enabled: true
   #   dashboard:
