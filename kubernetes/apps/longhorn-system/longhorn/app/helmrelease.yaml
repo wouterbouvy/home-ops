@@ -19,14 +19,8 @@ spec:
     ingress:
       enabled: true
       ingressClassName: internal
-      hosts:
-        - host: &host "longhorn.${SECRET_DOMAIN}"
-          paths:
-            - path: /
-              pathType: Prefix
-      tls:
-        - hosts:
-            - *host
+      host: &host "longhorn.${SECRET_DOMAIN}"
+      # tls: *host
   #   vpa:
   #     enabled: true
   #   dashboard:
