@@ -1,8 +1,0 @@
----
-kubernetes:
-  children:
-    master:
-      hosts:
-        talos-dev-1:
-          ansible_user: blaat
-          ansible_host: 10.0.88.4
