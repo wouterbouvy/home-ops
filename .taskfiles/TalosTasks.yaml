@@ -86,7 +86,7 @@ tasks:
       #- rm -rf /{{.ROOT_DIR}}/cilium/cni/charts
       - kustomize build --enable-helm {{.ROOT_DIR}}/infrastructure/cilium/cni | kubectl apply --context admin@{{.C_dev}} -f -
       # - kustomize build --enable-helm {{.ROOT_DIR}}/kubernetes/apps/kube-system/cilium/app | kubectl apply --context admin@{{.C_dev}} -f -
-      - defer: rm -rf {{.ROOT_DIR}}/kubernetes/apps/kube-system/cilium/app/charts
+      - defer: rm -rf {{.ROOT_DIR}}/infrastructure/cilium/cni/charts
 
   cilium-bootstrap-apply-prod:
     aliases: [cilium-prod]
