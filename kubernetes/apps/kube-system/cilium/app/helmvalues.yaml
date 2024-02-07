@@ -91,6 +91,7 @@ data:
       enabled: true
       annotations:
         grafana_folder: Cilium
+    skipCRDCreation: false
     rollOutCiliumPods: true
     # securityContext:
     #   privileged: true

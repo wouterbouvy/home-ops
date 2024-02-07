@@ -1,0 +1,6 @@
+machine:
+  network:
+    interfaces:
+      - interface: eno1
+        vip:
+          ip: 10.0.8.10

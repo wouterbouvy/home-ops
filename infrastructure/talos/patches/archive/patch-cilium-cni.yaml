@@ -1,0 +1,13 @@
+cluster:
+  network:
+    cni:
+      name: none
+#      name: custom
+#      urls:
+#        - http://git.im25.nl/wouter/k8s-talos-test/raw/branch/main/cilium/cilium.yaml
+  proxy:
+    disabled: true
+
+# talosctl machineconfig patch controlplane-test.yaml --patch @patches/patch-cilium-cni.yaml -o controlplane-test-cilium-cni.yaml
+
+# talosctl machineconfig patch worker-test.yaml --patch @patches/patch-cilium-cni.yaml -o worker-test-cilium-cni.yaml

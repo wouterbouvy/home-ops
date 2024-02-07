@@ -1,0 +1,10 @@
+machine:
+  install:
+    disk: /dev/sda
+  network:
+    interfaces:
+      - interface: eth0
+        mtu: 1500
+        dhcp: true
+        vip:
+          ip: 10.0.88.10

@@ -1,0 +1,16 @@
+machine:
+  kubelet:
+    extraArgs:
+      rotate-server-certificates: true
+cluster:
+  extraManifests:
+    - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
+    # - https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml
+
+# talosctl machineconfig patch controlplane.yaml --patch @patch-metrics.yaml -o controlplane.yaml
+
+# talosctl machineconfig patch controlplane-pmx.yaml --patch @patch-metrics.yaml -o controlplane-pmx.yaml
+
+# talosctl machineconfig patch worker-pmx.yaml --patch @patch-metrics.yaml -o worker-pmx.yaml
+
+# talosctl patch mc --nodes 10.0.88.11 --patch @patch-metrics.yaml

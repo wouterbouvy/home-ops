@@ -1,0 +1,16 @@
+machine:
+  install:
+    disk: /dev/mmcblk0
+    wipe: true
+  network:
+    interfaces:
+      - interface: eth0
+        mtu: 1500
+        dhcp: true
+        vip:
+          ip: 10.0.88.100
+cluster:
+  allowSchedulingOnControlPlanes: true
+
+# Commando om te patchen
+# talosctl machineconfig patch controlplane.yaml --patch @patch-wyse.yaml -o cp.yaml

@@ -6,7 +6,6 @@
     "SOPS_AGE_KEY_FILE": "${containerWorkspaceFolder}/age.key"
   },
   "postCreateCommand": {
-    "deps": "task deps"
   },
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
@@ -40,7 +39,6 @@
         "terminal.integrated.defaultProfile.linux": "zsh"
       },
       "extensions": [
-        "redhat.ansible",
         "redhat.vscode-yaml"
       ]
     }

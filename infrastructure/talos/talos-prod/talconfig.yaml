@@ -1,0 +1,104 @@
+#example: https://github.com/budimanjojo/talhelper/raw/master/example/talconfig.yaml
+clusterName: talos-prod
+talosVersion: v1.6.1
+kubernetesVersion: v1.29.0
+endpoint: https://talos-prod-api.im25.nl:6443
+domain: cluster.local
+allowSchedulingOnMasters: false
+allowSchedulingOnControlPlanes: false
+clusterPodNets:
+  - 10.244.0.0/16
+clusterSvcNets:
+  - 10.96.0.0/12
+cniConfig:
+  name: none
+patches:
+    - |-
+      cluster:
+        proxy:
+          disabled: true
+    # - "@./../patches/patch-m720q.yaml"
+    - "@./../patches/metrics.yaml"
+    # - "@./../patches/kubeprism.yaml"
+    - "@./../patches/harbor-registries.yaml"
+nodes:
+  - hostname: talos-prod-master-1
+    ipAddress: 10.0.8.1
+    #installDisk: /dev/sda
+    installDiskSelector:
+      size: "<= 120GB"
+      model: QEMU*
+    #talosImageURL: factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515
+    # schematic:
+    #   customization:
+    #     # extraKernelArgs:
+    #     #   - net.ifnames=0
+    #     systemExtensions:
+    #       officialExtensions:
+    #         - siderolabs/qemu-guest-agent
+    controlPlane: true
+    disableSearchDomain: true
+    # nameservers:
+    #   - 10.0.10.2
+    #   - 10.0.10.3
+    # networkInterfaces: 
+    #   - interface: eno1
+    #     mtu: 1500
+    #     dhcp: true
+  - hostname: talos-prod-master-2
+    ipAddress: 10.0.8.2
+    installDiskSelector:
+      size: "<= 120GB"
+      model: QEMU*
+    controlPlane: true
+    disableSearchDomain: true
+  - hostname: talos-prod-master-3
+    ipAddress: 10.0.8.3
+    installDiskSelector:
+      size: "<= 120GB"
+      model: QEMU*
+    controlPlane: true
+    disableSearchDomain: true
+  - hostname: talos-prod-worker-1
+    ipAddress: 10.0.8.4
+    installDiskSelector:
+      size: "<= 120GB"
+      model: QEMU*
+    controlPlane: false
+    disableSearchDomain: true
+  - hostname: talos-prod-worker-2
+    ipAddress: 10.0.8.5
+    installDiskSelector:
+      size: "<= 120GB"
+      model: QEMU*
+    controlPlane: false
+    disableSearchDomain: true
+  - hostname: talos-prod-worker-3
+    ipAddress: 10.0.8.6
+    installDiskSelector:
+      size: "<= 120GB"
+      model: QEMU*
+    controlPlane: false
+    disableSearchDomain: true
+controlPlane:
+  patches:
+    # - "@./patches/patch-qemu.yaml"
+    # - "@./../patches/prod-vip.yaml"
+    - "@./../patches/admissioncontroller-exemptions.yaml"
+    # - "@./../patches/anon-apiserver.yaml"
+  schematic:
+    customization:
+      # extraKernelArgs:
+      #   - net.ifnames=0
+      systemExtensions:
+        officialExtensions:
+          - siderolabs/qemu-guest-agent
+worker:
+  schematic:
+    customization:
+      # extraKernelArgs:
+      #   - net.ifnames=0
+      systemExtensions:
+        officialExtensions:
+          - siderolabs/qemu-guest-agent
+      

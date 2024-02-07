@@ -1,0 +1,118 @@
+#example: https://github.com/budimanjojo/talhelper/raw/master/example/talconfig.yaml
+clusterName: talos-dev
+talosVersion: v1.6.4
+kubernetesVersion: v1.29.1
+endpoint: https://talos-dev-api.im25.nl:6443
+domain: cluster.local
+allowSchedulingOnMasters: true
+allowSchedulingOnControlPlanes: true
+clusterPodNets:
+  - 10.244.0.0/16
+clusterSvcNets:
+  - 10.245.0.0/16
+cniConfig:
+  name: none
+patches:
+    - |-
+      cluster:
+        proxy:
+          disabled: true
+    # - "@./../patches/patch-m720q.yaml"
+    - "@./../patches/metrics.yaml"
+    - "@./../patches/tpm-disk-encryption.yaml"
+    # - "@./../patches/kubeprism.yaml"
+    - "@./../patches/harbor-registries.yaml"
+    - "@./../patches/longhorn-mount.yaml"
+nodes:
+  - hostname: talos-dev-1
+    ipAddress: 10.0.88.1
+    installDisk: /dev/nvme0n1
+    # installDiskSelector:
+    #   size: "<= 120GB"
+    #   model: QEMU*
+    talosImageURL: factory.talos.dev/installer-secureboot/ebdfa27a8d6272acf806ac6a5c968c3c284a47ce880273cecb19442c11bf0474
+    # schematic:
+    #   customization:
+    #     # extraKernelArgs:
+    #     #   - net.ifnames=0
+    #     systemExtensions:
+    #       officialExtensions:
+    #         - siderolabs/qemu-guest-agent
+    controlPlane: true
+    disableSearchDomain: true
+    nameservers:
+      - 10.0.10.2
+      - 10.0.10.3
+    networkInterfaces: 
+      - interface: bond0
+        dhcp: true
+        bond:
+          mode: 802.3ad
+          lacpRate: fast
+          xmitHashPolicy: layer3+4
+          miimon: 100
+          updelay: 200
+          downdelay: 200
+          interfaces:
+            - eno1
+            - enp2s0
+  - hostname: talos-dev-2
+    ipAddress: 10.0.88.2
+    installDisk: /dev/nvme0n1
+    talosImageURL: factory.talos.dev/installer-secureboot/ebdfa27a8d6272acf806ac6a5c968c3c284a47ce880273cecb19442c11bf0474
+    controlPlane: true
+    disableSearchDomain: true
+    networkInterfaces: 
+      - interface: bond0
+        dhcp: true
+        bond:
+          mode: 802.3ad
+          lacpRate: fast
+          xmitHashPolicy: layer3+4
+          miimon: 100
+          updelay: 200
+          downdelay: 200
+          interfaces:
+            - eno1
+            - enp2s0
+  - hostname: talos-dev-3
+    ipAddress: 10.0.88.3
+    installDisk: /dev/nvme0n1
+    talosImageURL: factory.talos.dev/installer-secureboot/ebdfa27a8d6272acf806ac6a5c968c3c284a47ce880273cecb19442c11bf0474
+    controlPlane: true
+    disableSearchDomain: true
+    networkInterfaces: 
+      - interface: bond0
+        dhcp: true
+        bond:
+          mode: 802.3ad
+          lacpRate: fast
+          xmitHashPolicy: layer3+4
+          miimon: 100
+          updelay: 200
+          downdelay: 200
+          interfaces:
+            - eno1
+            - enp2s0
+controlPlane:
+  patches:
+    # - "@./patches/patch-qemu.yaml"
+    # - "@./../patches/prod-vip.yaml"
+    - "@./../patches/admissioncontroller-exemptions.yaml"
+    # - "@./../patches/anon-apiserver.yaml"
+#   schematic:
+#     customization:
+#       # extraKernelArgs:
+#       #   - net.ifnames=0
+#       systemExtensions:
+#         officialExtensions:
+#           - siderolabs/qemu-guest-agent
+# worker:
+#   schematic:
+#     customization:
+#       # extraKernelArgs:
+#       #   - net.ifnames=0
+#       systemExtensions:
+#         officialExtensions:
+#           - siderolabs/qemu-guest-agent
+      

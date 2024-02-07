@@ -1,0 +1,31 @@
+machine:
+  registries:
+    config:
+      registry.im25.nl:
+        tls:
+          insecureSkipVerify: true
+    mirrors:
+      docker.io:
+        endpoints:
+          - https://registry.im25.nl/v2/proxy-docker.io
+        overridePath: true
+      ghcr.io:
+        endpoints:
+          - https://registry.im25.nl/v2/proxy-ghcr.io
+        overridePath: true
+      gcr.io:
+        endpoints:
+          - https://registry.im25.nl/v2/proxy-gcr.io
+        overridePath: true
+      registry.k8s.io:
+        endpoints:
+          - https://registry.im25.nl/v2/proxy-registry.k8s.io
+        overridePath: true
+      quay.io:
+        endpoints:
+          - https://registry.im25.nl/v2/proxy-quay.io
+        overridePath: true
+      factory.talos.dev:
+        endpoints:
+          - https://registry.im25.nl/v2/proxy-factory.talos.dev
+        overridePath: true

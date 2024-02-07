@@ -5,7 +5,11 @@ tasks:
 
   deps:
     desc: Install workstation dependencies with Brew
-    cmd: brew install {{.DEPS}} {{.CLI_ARGS}}
+    cmds:
+      - brew upgrade
+      - brew install {{.DEPS}} {{.CLI_ARGS}}
+      - asdf install talhelper latest
+      - asdf global talhelper latest
     preconditions:
       - sh: command -v brew
         msg: |
@@ -25,3 +29,4 @@ tasks:
         sops
         stern
         yq
+        adsf

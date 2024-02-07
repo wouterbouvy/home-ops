@@ -1,0 +1,195 @@
+version: "3"
+
+vars:
+  C_dev: talos-dev
+  TALOSVERSION_dev: v1.6.2
+  IP1_dev: 10.0.88.1
+  HOST1_dev: talos-dev-1
+  IP2_dev: 10.0.88.2
+  HOST2_dev: talos-dev-2
+  IP3_dev: 10.0.88.3
+  HOST3_dev: talos-dev-3
+  C_prod: talos-prod
+  TALOSVERSION_prod: v1.6.1
+  IP1_prod: 10.0.8.1
+  HOST1_prod: talos-prod-master-1
+  IP2_prod: 10.0.8.2
+  HOST2_prod: talos-prod-master-2
+  IP3_prod: 10.0.8.3
+  HOST3_prod: talos-prod-master-3
+  IP4_prod: 10.0.8.4
+  HOST4_prod: talos-prod-worker-1
+  IP5_prod: 10.0.8.5
+  HOST5_prod: talos-prod-worker-2
+  IP6_prod: 10.0.8.6
+  HOST6_prod: talos-prod-worker-3
+
+tasks:
+  genconfig-dev:
+    desc: Decrypt cluster vars from .env to .yaml for talhelper to consume
+    dir: "/{{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/"
+    cmds:
+      - pwd
+      - talhelper genconfig
+
+  genconfig-prod:
+    desc: Decrypt cluster vars from .env to .yaml for talhelper to consume
+    dir: "/{{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/"
+    cmds:
+      - pwd
+      - talhelper genconfig
+
+  bootstrap-dev:
+    aliases: [bs-dev]
+    desc: Runs all bootstrap related tasks.
+    cmds:
+      - task: genconfig-dev
+      - talosctl apply-config --insecure --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST1_dev}}.yaml
+      - sleep 30
+      - until talosctl bootstrap --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --context {{.C_dev}} ; do sleep 1; done
+      - until talosctl kubeconfig --talosconfig {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/talosconfig --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --context {{.C_dev}} --force; do sleep 1; done
+      # - |
+      #   sed -i 's/current-context: admin@.*/current-context: admin@{{.C_dev}}/g' ~/.kube/config || true
+      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
+      - task: cilium-bootstrap-apply-dev
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
+      - talosctl apply-config --insecure --endpoints {{.IP2_dev}} --nodes {{.IP2_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST2_dev}}.yaml
+      - talosctl apply-config --insecure --endpoints {{.IP3_dev}} --nodes {{.IP3_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST3_dev}}.yaml
+
+  bootstrap-prod:
+    aliases: [bs-prod]
+    desc: Runs all bootstrap related tasks.
+    cmds:
+      - task: genconfig-prod
+      - talosctl apply-config --insecure --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST1_prod}}.yaml
+      - sleep 30
+      - until talosctl bootstrap --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --context {{.C_prod}} ; do sleep 1; done
+      - until talosctl kubeconfig --talosconfig {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/talosconfig --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --context {{.C_prod}} --force; do sleep 1; done
+      # - |
+      #   sed -i 's/current-context: admin@.*/current-context: admin@{{.C_prod}}/g' ~/.kube/config || true
+      - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+      - task: cilium-bootstrap-apply-prod
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+      - talosctl apply-config --insecure --endpoints {{.IP2_prod}} --nodes {{.IP2_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST2_prod}}.yaml
+      - talosctl apply-config --insecure --endpoints {{.IP3_prod}} --nodes {{.IP3_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST3_prod}}.yaml
+      - talosctl apply-config --insecure --endpoints {{.IP4_prod}} --nodes {{.IP4_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST4_prod}}.yaml
+      - talosctl apply-config --insecure --endpoints {{.IP5_prod}} --nodes {{.IP5_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST5_prod}}.yaml
+      - talosctl apply-config --insecure --endpoints {{.IP6_prod}} --nodes {{.IP6_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST6_prod}}.yaml
+
+  cilium-bootstrap-apply-dev:
+    aliases: [cilium-dev]
+    desc: Bootstrap Cilium onto new cluster
+    cmds:
+      - kubectl delete configmap -n kube-system cilium-config --context admin@{{.C_dev}} || true
+      - kubectl delete daemonset -n kube-system cilium --context admin@{{.C_dev}} || true
+      - kubectl delete deployment -n kube-system cilium-operator --context admin@{{.C_dev}} || true
+      #- rm -rf /{{.ROOT_DIR}}/cilium/cni/charts
+      - kustomize build --enable-helm {{.ROOT_DIR}}/infrastructure/cilium/cni | kubectl apply --context admin@{{.C_dev}} -f -
+      - defer: rm -rf {{.ROOT_DIR}}/infrastructure/cilium/cni/charts
+
+  cilium-bootstrap-apply-prod:
+    aliases: [cilium-prod]
+    desc: Bootstrap Cilium onto new cluster
+    cmds:
+      - kubectl delete configmap -n kube-system cilium-config --context admin@{{.C_prod}} || true
+      - kubectl delete daemonset -n kube-system cilium --context admin@{{.C_prod}} || true
+      - kubectl delete deployment -n kube-system cilium-operator --context admin@{{.C_prod}} || true
+      #- rm -rf /{{.ROOT_DIR}}/cilium/cni/charts
+      - kustomize build --enable-helm {{.ROOT_DIR}}/cilium/cni | kubectl apply --context admin@{{.C_prod}} -f -
+      - defer: rm -rf {{.ROOT_DIR}}/cilium/cni/charts
+
+  destroy-dev:
+    desc: Destroy cluster
+    cmds:
+      # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_dev}} -n {{.IP1_dev}}
+      # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_dev}} -n {{.IP2_dev}}
+      # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_dev}} -n {{.IP3_dev}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP1_dev}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP2_dev}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP3_dev}}
+
+
+  destroy-prod:
+    desc: Destroy cluster
+    cmds:
+      # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_prod}} -n {{.IP1_prod}}
+      # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_prod}} -n {{.IP2_prod}}
+      # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_prod}} -n {{.IP3_prod}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_prod}} -n {{.IP1_prod}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_prod}} -n {{.IP2_prod}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_prod}} -n {{.IP3_prod}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_prod}} -n {{.IP4_prod}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_prod}} -n {{.IP5_prod}}
+      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_prod}} -n {{.IP6_prod}}
+
+  upgrade-dev:
+    aliases: [up-dev]
+    desc: Upgrade all nodes
+    cmds:
+      - task: genconfig-dev
+      - talosctl apply-config --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST1_dev}}.yaml
+      - sleep 3
+
+      # - talosctl upgrade --image factory.talos.dev/installer-secureboot/97bf8e92fc6bba0f03928b859c08295d7615737b29db06a97be51dc63004e403:{{.TALOSVERSION_dev}} --nodes {{.IP1_dev}}
+      # - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
+
+      - talosctl apply-config --endpoints {{.IP2_dev}} --nodes {{.IP2_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST2_dev}}.yaml
+      - sleep 3
+      # - talosctl upgrade --image factory.talos.dev/installer-secureboot/97bf8e92fc6bba0f03928b859c08295d7615737b29db06a97be51dc63004e403:{{.TALOSVERSION_dev}} --nodes {{.IP2_dev}}
+      # - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
+
+      - talosctl apply-config --endpoints {{.IP3_dev}} --nodes {{.IP3_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST3_dev}}.yaml
+      - sleep 3
+      # - talosctl upgrade --image factory.talos.dev/installer-secureboot/97bf8e92fc6bba0f03928b859c08295d7615737b29db06a97be51dc63004e403:{{.TALOSVERSION_dev}} --nodes {{.IP3_dev}}
+      # - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
+
+  upgrade-prod:
+    aliases: [up-prod]
+    desc: Upgrade all nodes
+    cmds:
+      - task: genconfig-prod
+      - talosctl apply-config --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST1_prod}}.yaml
+      - sleep 3
+      - talosctl upgrade --image factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:{{.TALOSVERSION_prod}} --nodes {{.IP1_prod}}
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+
+      - talosctl apply-config --endpoints {{.IP2_prod}} --nodes {{.IP2_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST2_prod}}.yaml
+      - sleep 3
+      - talosctl upgrade --image factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:{{.TALOSVERSION_prod}} --nodes {{.IP2_prod}}
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+
+      - talosctl apply-config --endpoints {{.IP3_prod}} --nodes {{.IP3_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST3_prod}}.yaml
+      - sleep 3
+      - talosctl upgrade --image factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:{{.TALOSVERSION_prod}} --nodes {{.IP3_prod}}
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+
+      - talosctl apply-config --endpoints {{.IP4_prod}} --nodes {{.IP4_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST4_prod}}.yaml
+      - sleep 3
+      - talosctl upgrade --image factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:{{.TALOSVERSION_prod}} --nodes {{.IP4_prod}}
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+
+      - talosctl apply-config --endpoints {{.IP5_prod}} --nodes {{.IP5_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST5_prod}}.yaml
+      - sleep 3
+      - talosctl upgrade --image factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:{{.TALOSVERSION_prod}} --nodes {{.IP5_prod}}
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+
+      - talosctl apply-config --endpoints {{.IP6_prod}} --nodes {{.IP6_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST6_prod}}.yaml
+      - sleep 3
+      - talosctl upgrade --image factory.talos.dev/installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:{{.TALOSVERSION_prod}} --nodes {{.IP6_prod}}
+      - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_prod}}; do sleep 1; done
+
+### kubectl --namespace rook-ceph get cephcluster/rook-ceph -o template --template={{.status.phase}}
+### kubectl --namespace rook-ceph get cephcluster/rook-ceph -o template --template={{.status.ceph.health}}
+
+      # - until talosctl bootstrap --endpoints {{.IP}} --nodes {{.IP}} --context {{.C}} ; do sleep 1; done
+      # # - until talosctl kubeconfig --talosconfig {{.ROOT_DIR}}/infrastructure/talos/{{.C}}/clusterconfig/talosconfig --endpoints {{.IP}} --nodes {{.IP}} --context {{.C}} ; do sleep 1; done
+      # # - |
+      # #  sed -i 's/current-context: admin@.*/current-context: admin@{{.C}}/g' ~/.kube/config || true
+      # - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s ; do sleep 1; done
+      # - task: cilium-bootstrap-apply
+      # - until kubectl wait --for=condition=Ready nodes --all --timeout=600s ; do sleep 1; done
+      # - talosctl apply-config --insecure --endpoints {{.IP2}} --nodes {{.IP2}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C}}/clusterconfig/{{.C}}-{{.HOST2}}.yaml
+      # - talosctl apply-config --insecure --endpoints {{.IP3}} --nodes {{.IP3}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C}}/clusterconfig/{{.C}}-{{.HOST3}}.yaml
+      # # - talosctl apply-config --insecure --endpoints {{.IP4}} --nodes {{.IP4}} --file /{{.ROOT_DIR}}/clusterconfig/{{.C}}-{{.HOST4}}.yaml
+      # # - talosctl apply-config --insecure --endpoints {{.IP5}} --nodes {{.IP5}} --file /{{.ROOT_DIR}}/clusterconfig/{{.C}}-{{.HOST5}}.yaml
+      # # - talosctl apply-config --insecure --endpoints {{.IP6}} --nodes {{.IP6}} --file /{{.ROOT_DIR}}/clusterconfig/{{.C}}-{{.HOST6}}.yamlt
