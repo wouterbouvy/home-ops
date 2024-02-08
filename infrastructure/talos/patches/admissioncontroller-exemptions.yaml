@@ -5,6 +5,5 @@ cluster:
         configuration:
           exemptions:
             namespaces:
-              - rook-ceph
               - monitoring
               - longhorn-system
