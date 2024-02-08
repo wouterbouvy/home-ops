@@ -17,33 +17,21 @@ patches:
       cluster:
         proxy:
           disabled: true
-    # - "@./../patches/patch-m720q.yaml"
     - "@./../patches/metrics.yaml"
     - "@./../patches/tpm-disk-encryption.yaml"
-    # - "@./../patches/kubeprism.yaml"
     - "@./../patches/harbor-registries.yaml"
     - "@./../patches/longhorn-mount.yaml"
 nodes:
   - hostname: talos-dev-1
     ipAddress: 10.0.88.1
     installDisk: /dev/nvme0n1
-    # installDiskSelector:
-    #   size: "<= 120GB"
-    #   model: QEMU*
     talosImageURL: factory.talos.dev/installer-secureboot/ebdfa27a8d6272acf806ac6a5c968c3c284a47ce880273cecb19442c11bf0474
-    # schematic:
-    #   customization:
-    #     # extraKernelArgs:
-    #     #   - net.ifnames=0
-    #     systemExtensions:
-    #       officialExtensions:
-    #         - siderolabs/qemu-guest-agent
     controlPlane: true
     disableSearchDomain: true
     nameservers:
       - 10.0.10.2
       - 10.0.10.3
-    networkInterfaces: 
+    networkInterfaces:
       - interface: bond0
         dhcp: true
         bond:
@@ -62,7 +50,7 @@ nodes:
     talosImageURL: factory.talos.dev/installer-secureboot/ebdfa27a8d6272acf806ac6a5c968c3c284a47ce880273cecb19442c11bf0474
     controlPlane: true
     disableSearchDomain: true
-    networkInterfaces: 
+    networkInterfaces:
       - interface: bond0
         dhcp: true
         bond:
@@ -81,7 +69,7 @@ nodes:
     talosImageURL: factory.talos.dev/installer-secureboot/ebdfa27a8d6272acf806ac6a5c968c3c284a47ce880273cecb19442c11bf0474
     controlPlane: true
     disableSearchDomain: true
-    networkInterfaces: 
+    networkInterfaces:
       - interface: bond0
         dhcp: true
         bond:
@@ -96,23 +84,4 @@ nodes:
             - enp2s0
 controlPlane:
   patches:
-    # - "@./patches/patch-qemu.yaml"
-    # - "@./../patches/prod-vip.yaml"
     - "@./../patches/admissioncontroller-exemptions.yaml"
-    # - "@./../patches/anon-apiserver.yaml"
-#   schematic:
-#     customization:
-#       # extraKernelArgs:
-#       #   - net.ifnames=0
-#       systemExtensions:
-#         officialExtensions:
-#           - siderolabs/qemu-guest-agent
-# worker:
-#   schematic:
-#     customization:
-#       # extraKernelArgs:
-#       #   - net.ifnames=0
-#       systemExtensions:
-#         officialExtensions:
-#           - siderolabs/qemu-guest-agent
-      
