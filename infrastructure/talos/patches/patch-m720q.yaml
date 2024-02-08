@@ -1,7 +1,0 @@
-machine:
-  install:
-    extraKernelArgs:
-      # - consoleblank=300
-    extensions:
-      - image: ghcr.io/siderolabs/intel-ucode:20230808
-      - image: ghcr.io/siderolabs/i915-ucode:20230804
