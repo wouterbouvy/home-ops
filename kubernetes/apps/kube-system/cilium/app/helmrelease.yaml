@@ -89,12 +89,22 @@ spec:
       relay:
         # -- Enable Hubble Relay (requires hubble.enabled=true)
         enabled: true
-
+        prometheus:
+          serviceMonitor:
+            enabled: true
         # -- Roll out Hubble Relay pods automatically when configmap is updated.
         rollOutPods: true
       ui:
         enabled: true
         rollOutPods: true
+        className: internal
+        annotations:
+          hajimari.io/icon: simple-icons:cilium
+        hosts:
+          - "hubble.${SECRET_DOMAIN}"
+        tls:
+          - hosts:
+              - "hubble.${SECRET_DOMAIN}"
       metrics:
         enabled:
           - dns:query
