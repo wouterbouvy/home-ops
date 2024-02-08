@@ -44,7 +44,7 @@ tasks:
     cmds:
       - task: genconfig-dev
       - until talhelper gencommand apply --extra-flags "--insecure" | bash ; do sleep 5; done
-      - sleep 15
+      - sleep 30
       - until talhelper gencommand bootstrap | bash ; do sleep 1; done
       - until talosctl kubeconfig --talosconfig {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/talosconfig --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --context {{.C_dev}} --force ; do sleep 1; done
       - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
