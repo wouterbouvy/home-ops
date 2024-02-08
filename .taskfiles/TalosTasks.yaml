@@ -2,7 +2,6 @@ version: "3"
 
 vars:
   C_dev: talos-dev
-  TALOSVERSION_dev: v1.6.2
   IP1_dev: 10.0.88.1
   HOST1_dev: talos-dev-1
   IP2_dev: 10.0.88.2
@@ -10,7 +9,6 @@ vars:
   IP3_dev: 10.0.88.3
   HOST3_dev: talos-dev-3
   C_prod: talos-prod
-  TALOSVERSION_prod: v1.6.1
   IP1_prod: 10.0.8.1
   HOST1_prod: talos-prod-master-1
   IP2_prod: 10.0.8.2
@@ -42,19 +40,17 @@ tasks:
   bootstrap-dev:
     aliases: [bs-dev]
     desc: Runs all bootstrap related tasks.
+    dir: "/{{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/"
     cmds:
       - task: genconfig-dev
-      - talosctl apply-config --insecure --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST1_dev}}.yaml
-      - sleep 30
-      - until talosctl bootstrap --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --context {{.C_dev}} ; do sleep 1; done
-      - until talosctl kubeconfig --talosconfig {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/talosconfig --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --context {{.C_dev}} --force; do sleep 1; done
-      # - |
-      #   sed -i 's/current-context: admin@.*/current-context: admin@{{.C_dev}}/g' ~/.kube/config || true
+      - until talhelper gencommand apply --extra-flags "--insecure" | bash ; do sleep 5; done
+      - sleep 15
+      - until talhelper gencommand bootstrap | bash ; do sleep 1; done
+      - until talosctl kubeconfig --talosconfig {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/talosconfig --endpoints {{.IP1_dev}} --nodes {{.IP1_dev}} --context {{.C_dev}} --force ; do sleep 1; done
       - until kubectl wait --for=condition=Ready=False nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
       - task: cilium-bootstrap-apply-dev
       - until kubectl wait --for=condition=Ready nodes --all --timeout=600s --context admin@{{.C_dev}}; do sleep 1; done
-      - talosctl apply-config --insecure --endpoints {{.IP2_dev}} --nodes {{.IP2_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST2_dev}}.yaml
-      - talosctl apply-config --insecure --endpoints {{.IP3_dev}} --nodes {{.IP3_dev}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/clusterconfig/{{.C_dev}}-{{.HOST3_dev}}.yaml
+      - task: :cluster:install
 
   bootstrap-prod:
     aliases: [bs-prod]
@@ -63,7 +59,7 @@ tasks:
       - task: genconfig-prod
       - talosctl apply-config --insecure --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --file {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/{{.C_prod}}-{{.HOST1_prod}}.yaml
       - sleep 30
-      - until talosctl bootstrap --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --context {{.C_prod}} ; do sleep 1; done
+      - until [ talosctl bootstrap --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --context {{.C_prod}} ] ; do sleep 1; done
       - until talosctl kubeconfig --talosconfig {{.ROOT_DIR}}/infrastructure/talos/{{.C_prod}}/clusterconfig/talosconfig --endpoints {{.IP1_prod}} --nodes {{.IP1_prod}} --context {{.C_prod}} --force; do sleep 1; done
       # - |
       #   sed -i 's/current-context: admin@.*/current-context: admin@{{.C_prod}}/g' ~/.kube/config || true
@@ -101,14 +97,15 @@ tasks:
 
   destroy-dev:
     desc: Destroy cluster
+    dir: "/{{.ROOT_DIR}}/infrastructure/talos/{{.C_dev}}/"
     cmds:
       # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_dev}} -n {{.IP1_dev}}
       # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_dev}} -n {{.IP2_dev}}
       # - talosctl reset --reboot --graceful=false --wait=false --context {{.C_dev}} -n {{.IP3_dev}}
-      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP1_dev}}
-      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP2_dev}}
-      - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP3_dev}}
-
+      # - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP1_dev}}
+      # - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP2_dev}}
+      # - talosctl reset --reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false --context {{.C_dev}} -n {{.IP3_dev}}
+      - talhelper gencommand reset --extra-flags "--reboot --system-labels-to-wipe STATE --system-labels-to-wipe EPHEMERAL --graceful=false --wait=false" | bash
 
   destroy-prod:
     desc: Destroy cluster

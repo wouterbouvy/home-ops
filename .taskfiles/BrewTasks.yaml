@@ -29,4 +29,4 @@ tasks:
         sops
         stern
         yq
-        adsf
+        asdf
