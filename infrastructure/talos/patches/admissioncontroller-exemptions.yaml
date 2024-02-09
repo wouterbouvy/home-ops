@@ -7,3 +7,4 @@ cluster:
             namespaces:
               - monitoring
               - longhorn-system
+              - system-upgrade

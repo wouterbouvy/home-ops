@@ -17,6 +17,15 @@ patches:
       cluster:
         proxy:
           disabled: true
+    - |-
+      machine:
+        features:
+          kubernetesTalosAPIAccess:
+            enabled: true
+            allowedRoles:
+              - os:operator
+            allowedKubernetesNamespaces:
+              - system-upgrade
     - "@./../patches/metrics.yaml"
     - "@./../patches/tpm-disk-encryption.yaml"
     - "@./../patches/harbor-registries.yaml"
