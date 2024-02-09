@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./namespace.yaml
   - ./system-upgrade-controller/ks.yaml
+  - ./talos/ks.yaml
