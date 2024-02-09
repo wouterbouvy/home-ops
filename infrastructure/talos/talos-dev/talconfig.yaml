@@ -1,6 +1,6 @@
 #example: https://github.com/budimanjojo/talhelper/raw/master/example/talconfig.yaml
 clusterName: talos-dev
-talosVersion: v1.6.4
+talosVersion: v1.6.2
 kubernetesVersion: v1.29.1
 endpoint: https://talos-dev-api.im25.nl:6443
 domain: cluster.local
@@ -10,6 +10,10 @@ clusterPodNets:
   - 10.244.0.0/16
 clusterSvcNets:
   - 10.245.0.0/16
+additionalApiServerCertSans: &sans
+  - "10.0.88.10"
+  - 127.0.0.1 # KubePrism
+additionalMachineCertSans: *sans
 cniConfig:
   name: none
 patches:
@@ -26,6 +30,33 @@ patches:
               - os:operator
             allowedKubernetesNamespaces:
               - system-upgrade
+    - &kubeletPatch |-
+      machine:
+        kubelet:
+          nodeIP:
+            validSubnets:
+              - "10.0.88.0/24"
+    - &containerdPatch |-
+      machine:
+        files:
+          - op: create
+            path: /etc/cri/conf.d/20-customization.part
+            content: |-
+              [plugins."io.containerd.grpc.v1.cri"]
+                enable_unprivileged_ports = true
+                enable_unprivileged_icmp = true
+              [plugins."io.containerd.grpc.v1.cri".containerd]
+                discard_unpacked_layers = false
+              [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
+                discard_unpacked_layers = false
+    - |-
+      cluster:
+        controllerManager:
+          extraArgs:
+            bind-address: 0.0.0.0
+        scheduler:
+          extraArgs:
+            bind-address: 0.0.0.0
     - "@./../patches/metrics.yaml"
     - "@./../patches/tpm-disk-encryption.yaml"
     - "@./../patches/harbor-registries.yaml"
@@ -93,4 +124,7 @@ nodes:
             - enp2s0
 controlPlane:
   patches:
-    - "@./../patches/admissioncontroller-exemptions.yaml"
+    # - "@./../patches/admissioncontroller-exemptions.yaml"
+    - |-
+      - op: remove
+        path: /cluster/apiServer/admissionControl
