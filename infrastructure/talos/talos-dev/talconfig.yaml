@@ -27,7 +27,7 @@ patches:
           kubernetesTalosAPIAccess:
             enabled: true
             allowedRoles:
-              - os:operator
+              - os:admin
             allowedKubernetesNamespaces:
               - system-upgrade
     - &kubeletPatch |-
