@@ -8,7 +8,21 @@ kubeconfig
 *.agekey
 *.pub
 *.key
+# Private
+.private
+.bin
 # Ansible
 .venv*
 # Taskfile
-.tasks
+.task
+# Brew
+Brewfile.lock.json
+# intellij
+.idea
+# wiki
+wiki
+# Bootstrap
+/config.yaml
+#temp files
+/bootstrap*
+kubernetes-temp*
