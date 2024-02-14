@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 30m
-  url: "https://www.github.com/home-ops"
+  url: "https://www.github.com/wouterbouvy/home-ops"
   ref:
     branch: "main"
   ignore: |
