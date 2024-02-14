@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:base",
+    "config:recommended",
     "docker:enableMajor",
     ":disableRateLimiting",
     ":dependencyDashboard",
@@ -15,28 +15,35 @@
   "schedule": ["on saturday"],
   "flux": {
     "fileMatch": [
-      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "helm-values": {
     "fileMatch": [
-      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "kubernetes": {
     "fileMatch": [
-      "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+      "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+      "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
     ]
   },
   "kustomize": {
     "fileMatch": [
       "(^|/)kustomization\\.ya?ml(\\.j2)?$"
+    ]
+  },
+  "pip_requirements": {
+    "fileMatch": [
+      "(^|/)[\\w-]*requirements(-\\w+)?\\.(txt|pip)(\\.j2)?$"
+    ]
+  },
+  "ansible-galaxy": {
+    "fileMatch": [
+      "(^|/)(galaxy|requirements)(\\.ansible)?\\.ya?ml(\\.j2)?$"
     ]
   },
   // commit message topics
@@ -47,7 +54,7 @@
   "packageRules": [
     // automerge
     {
-      "description": "Auto merge Github Actions",
+      "description": ["Auto merge Github Actions"],
       "matchManagers": ["github-actions"],
       "automerge": true,
       "automergeType": "branch",
@@ -56,7 +63,7 @@
     },
     // groups
     {
-      "description": "Flux Group",
+      "description": ["Flux Group"],
       "groupName": "Flux",
       "matchPackagePatterns": ["flux"],
       "matchDatasources": ["docker", "github-tags"],
@@ -66,21 +73,11 @@
       },
       "separateMinorPatch": true
     },
-    {
-      "description": "System Upgrade Controller Group",
-      "groupName": "System Upgrade Controller",
-      "matchPackagePatterns": ["rancher/system-upgrade-controller"],
-      "matchDatasources": ["docker", "github-releases"],
-      "group": {
-        "commitMessageTopic": "{{{groupName}}} group"
-      },
-      "separateMinorPatch": true
-    },
     // custom versioning
     {
-      "description": "Use custom versioning for k3s",
+      "description": ["Use custom versioning for k3s"],
       "matchDatasources": ["github-releases"],
-      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k3s)(?<build>\\d+)$",
+      "versioning": "regex:^v(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)(?<compatibility>\\+k.s)\\.?(?<build>\\d+)$",
       "matchPackagePatterns": ["k3s"]
     },
     // commit message topics
@@ -222,22 +219,21 @@
   "customManagers": [
     {
       "customType": "regex",
-      "description": "Process various other dependencies",
+      "description": ["Process custom dependencies"],
       "fileMatch": [
-        "(^|/)addons/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-        "(^|/)ansible/.+\\.ya?ml(\\.j2)?(\\.j2)?$",
-        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?(\\.j2)?$"
+        "(^|/).taskfiles/.+\\.ya?ml$",
+        "(^|/)ansible/.+\\.ya?ml(\\.j2)?$",
+        "(^|/)kubernetes/.+\\.ya?ml(\\.j2)?$"
       ],
       "matchStrings": [
-        // Example: `k3s_release_version: "v1.27.3+k3s1"`
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?\"(?<currentValue>.*)\"\n",
-        // Example: `- https://github.com/rancher/system-upgrade-controller/releases/download/v0.11.0/crd.yaml`
-        "datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( versioning=(?<versioning>\\S+))?\n.*?-\\s(.*?)\/(?<currentValue>[^/]+)\/[^/]+\n",
-        // Example: apiVersion=helm.cattle.io/v1 kind=HelmChart
-        "datasource=(?<datasource>\\S+)\n.*?repo: (?<registryUrl>\\S+)\n.*?chart: (?<depName>\\S+)\n.*?version: (?<currentValue>\\S+)\n"
+        // # renovate: datasource=github-releases depName=k3s-io/k3s
+        // k3s_release_version: v1.29.0+k3s1
+        "(?m:# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)( repository=(?<registryUrl>\\S+))?\\n.+?: \"?(?<currentValue>\\S+?)\"?$)",
+        // # renovate: datasource=github-releases depName=rancher/system-upgrade-controller
+        // https://github.com/rancher/system-upgrade-controller/releases/download/v0.13.2/crd.yaml
+        "(?m:# renovate: datasource=(?<datasource>\\S+) depName=(?<depName>\\S+)\\n.+?\/(?<currentValue>(v|\\d)[^\/]+)\\S+$)"
       ],
-      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}",
-      "versioningTemplate": "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}"
+      "datasourceTemplate": "{{#if datasource}}{{{datasource}}}{{else}}github-releases{{/if}}"
     }
   ]
 }
