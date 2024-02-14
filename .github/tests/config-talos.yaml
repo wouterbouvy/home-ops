@@ -31,8 +31,8 @@ cluster:
 flux:
   enabled: true
   github:
-    username: onedr0p
-    address: https://github.com/onedr0p/cluster-template
+    username: wouterbouvy
+    address: https://github.com/wouterbouvy/home-ops
     branch: main
     webhook:
       enabled: true
