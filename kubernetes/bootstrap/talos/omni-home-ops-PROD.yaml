@@ -2,7 +2,7 @@ kind: Cluster
 name: home-ops-PROD
 kubernetes:
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
-  version: v1.32.4
+  version: v1.33.1
 talos:
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
   version: v1.9.5
