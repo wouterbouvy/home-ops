@@ -1,0 +1,23 @@
+[env]
+OMNICONFIG = "{{config_root}}/omniconfig"
+KUBECONFIG = "{{config_root}}/kubeconfig"
+
+[tools]
+"aqua:siderolabs/talos" = "1.10.5"
+"aqua:siderolabs/omni/omnictl" = "0.52.0"
+"aqua:kubernetes/kubectl" = "1.33.2"
+
+[tasks.omni-bootstrap]
+description = 'Bootstrap cluster'
+run = [
+    "omnictl cluster template validate -f omni-home-ops.yaml",
+    "omnictl cluster template sync -v -f omni-home-ops.yaml",
+    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false -f $KUBECONFIG",
+    "until kubectl --kubeconfig $KUBECONFIG wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done"
+]
+dir = "kubernetes/bootstrap/talos"
+
+[tasks.omni-reset]
+description = 'Reset cluster'
+run = "omnictl cluster template delete -f omni-home-ops.yaml"
+dir = "kubernetes/bootstrap/talos"

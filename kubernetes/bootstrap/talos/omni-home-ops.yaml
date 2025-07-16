@@ -1,0 +1,210 @@
+kind: Cluster
+name: home-ops
+kubernetes:
+# renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
+  version: v1.33.2
+talos:
+# renovate: datasource=docker depName=ghcr.io/siderolabs/installer
+  version: v1.10.5
+patches:
+  - file: patches/controller/cluster.yaml
+  - file: patches/global/kubelet.yaml
+  - file: patches/global/containerd.yaml
+  - file: patches/global/disable-search-domain.yaml
+  - file: patches/global/sysctl.yaml
+  # - file: patches/global/sans.yaml
+  - file: patches/global/NTP.yaml
+systemExtensions:
+  - siderolabs/crun
+  - siderolabs/gasket-driver
+  - siderolabs/i915
+  - siderolabs/intel-ucode
+  - siderolabs/iscsi-tools
+  - siderolabs/util-linux-tools
+---
+kind: ControlPlane
+machines:
+  # - 091ce700-c435-11e8-a46f-24a9ea0b0c00 # Delta
+  # - 3f1eae80-fa16-11e8-b2a5-75afac5e1000 # Echo
+  # - 5ea7c280-c43a-11e8-989b-7a47211d0c00 # Foxtrot
+  - 091ce700-c435-11e8-a46f-24a9ea0b0c00 # Hotel
+  - 55962a00-2edf-11e9-be0a-a50e34f61300 # India
+  - bc661400-2edc-11e9-b33f-222a5a021400 # Juliett
+# patches:
+#   # - name: NIC config
+#   #   inline:
+#   #     machine:
+#   #       network:
+#   #         interfaces:
+#   #           - deviceSelector:
+#   #               driver: mlx5_core
+#   #               physical: true
+#   #             dhcp: false
+#   #             vlans:
+#   #               - dhcp: true
+#   #                 vlanId: 8
+#   #           - interface: eno1
+#   #             ignore: true
+#   - file: patches/controller/disable-admission-controller-new.yaml
+#   - file: patches/controller/etcd.yaml
+---
+kind: Workers
+machines:
+  # - b5dd64c8-53a8-be17-4fbc-1c697ad8ff08 #Golf NUC11
+---
+kind: Machine
+name: 091ce700-c435-11e8-a46f-24a9ea0b0c00 # Hotel
+patches:
+  - name: NIC config
+    inline:
+      machine:
+        network:
+          hostname: hotel
+          interfaces:
+            - interface: enp1s0f0np0
+              dhcp: false
+              vlans:
+                - vlanId: 8
+                  addresses:
+                    - "10.0.8.10/24"
+                  routes:
+                    - network: 0.0.0.0/0
+                      gateway: 10.0.8.254
+            - interface: enp1s0f1
+              ignore: true
+            - interface: eno1
+              ignore: true
+          nameservers:
+            - 10.0.8.254
+  # - name: installdisk
+  #   inline:
+  #     machine:
+  #       install:
+  #         diskSelector:
+  #           serial: "SS0L68728L1TH83107TD"
+  # - name: longhorn
+  #   inline:
+  #     machine:
+  #       disks:
+  #       - device: /dev/disk/by-id/nvme-Samsung_SSD_980_1TB_S649NL1T708722V
+  #         partitions:
+  #           - mountpoint: /var/mnt/longhorn
+---
+kind: Machine
+name: 55962a00-2edf-11e9-be0a-a50e34f61300 # India
+patches:
+  - name: NIC config
+    inline:
+      machine:
+        network:
+          hostname: india
+          interfaces:
+            - interface: enp1s0f0np0
+              dhcp: false
+              vlans:
+                - vlanId: 8
+                  addresses:
+                    - "10.0.8.20/24"
+                  routes:
+                    - network: 0.0.0.0/0
+                      gateway: 10.0.8.254
+            - interface: enp1s0f1
+              ignore: true
+            - interface: eno1
+              ignore: true
+          nameservers:
+            - 10.0.8.254
+  # - name: installdisk
+  #   inline:
+  #     machine:
+  #       install:
+  #         diskSelector:
+  #           serial: "SS0L68728L1TH83107SV"
+  # - name: longhorn
+  #   inline:
+  #     machine:
+  #       disks:
+  #       - device: /dev/disk/by-id/nvme-Samsung_SSD_980_1TB_S649NX0T106248F
+  #         partitions:
+  #           - mountpoint: /var/mnt/longhorn
+---
+kind: Machine
+name: bc661400-2edc-11e9-b33f-222a5a021400 # Juliett
+patches:
+  - name: NIC config
+    inline:
+      machine:
+        network:
+          hostname: juliett
+          interfaces:
+            - interface: enp1s0f0np0
+              dhcp: false
+              vlans:
+                - vlanId: 8
+                  addresses:
+                    - "10.0.8.30/24"
+                  routes:
+                    - network: 0.0.0.0/0
+                      gateway: 10.0.8.254
+            - interface: enp1s0f1
+              ignore: true
+            - interface: eno1
+              ignore: true
+          nameservers:
+            - 10.0.8.254
+  # - name: installdisk
+  #   inline:
+  #     machine:
+  #       install:
+  #         diskSelector:
+  #           serial: "SS0L68728L1TH83107TF"
+  # - name: longhorn
+  #   inline:
+  #     machine:
+  #       disks:
+  #       - device: /dev/disk/by-id/nvme-Samsung_SSD_970_EVO_1TB_S5H9NS0N410306N
+  #         partitions:
+  #           - mountpoint: /var/mnt/longhorn
+# ---
+# kind: Machine
+# name: b5dd64c8-53a8-be17-4fbc-1c697ad8ff08
+# patches:
+#   - name: NIC config
+#     inline:
+#       machine:
+#         network:
+#           hostname: golf
+#           interfaces:
+#             - interface: bond0
+#               dhcp: false
+#               vlans:
+#                 - vlanId: 8
+#                   addresses:
+#                     - "10.0.8.40/24"
+#                   routes:
+#                     - network: 0.0.0.0/0
+#                       gateway: 10.0.8.254
+#               bond:
+#                 mode: 802.3ad
+#                 lacpRate: fast
+#                 xmitHashPolicy: layer3+4
+#                 miimon: 100
+#                 deviceSelectors:
+#                   - driver: mlx5_core
+#             - interface: enp91s0
+#               ignore: true
+#           nameservers:
+#             - 10.0.8.254
+#   - name: installdisk
+#     inline:
+#       machine:
+#         install:
+#           diskSelector:
+#             serial: "S674NF0R214511"
+#   - name: longhorn
+#     inline:
+#       machine:
+#         disks:
+#         - device: /dev/disk/by-id/nvme-MZ1LB1T9HBLS-000FB_S5XANA0T103945
+#           partitions:
+#             - mountpoint: /var/mnt/longhorn
