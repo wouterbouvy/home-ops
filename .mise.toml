@@ -1,19 +1,36 @@
 [env]
 OMNICONFIG = "{{config_root}}/omniconfig"
 KUBECONFIG = "{{config_root}}/kubeconfig"
+TALOSCONFIG = "{{config_root}}/talosconfig"
 
 [tools]
 "aqua:siderolabs/talos" = "1.10.5"
 "aqua:siderolabs/omni/omnictl" = "0.52.0"
 "aqua:kubernetes/kubectl" = "1.33.2"
+"aqua:helmfile/helmfile" = "1.1.3"
+"aqua:cilium/cilium-cli" = "0.18.5"
 
 [tasks.omni-bootstrap]
 description = 'Bootstrap cluster'
 run = [
     "omnictl cluster template validate -f omni-home-ops.yaml",
-    "omnictl cluster template sync -v -f omni-home-ops.yaml",
-    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false -f $KUBECONFIG",
-    "until kubectl --kubeconfig $KUBECONFIG wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done"
+    "omnictl cluster template sync -f omni-home-ops.yaml",
+    "omnictl talosconfig --merge=false --force $TALOSCONFIG",
+    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false --force $KUBECONFIG",
+    "until kubectl --kubeconfig $KUBECONFIG wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "helmfile --kubeconfig $KUBECONFIG --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
+]
+dir = "kubernetes/bootstrap/talos"
+
+[tasks.omni-sync]
+description = 'Sync cluster'
+run = [
+    "omnictl cluster template validate -f omni-home-ops.yaml",
+    "omnictl cluster template sync -f omni-home-ops.yaml",
+    "omnictl talosconfig --merge=false --force $TALOSCONFIG",
+    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false --force $KUBECONFIG",
+    # "kubectl --kubeconfig $KUBECONFIG wait --for=condition=Ready=True nodes --all --timeout=600s",
+    # "helmfile --kubeconfig $KUBECONFIG --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
 ]
 dir = "kubernetes/bootstrap/talos"
 
