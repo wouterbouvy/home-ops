@@ -9,6 +9,7 @@ TALOSCONFIG = "{{config_root}}/talosconfig"
 "aqua:kubernetes/kubectl" = "1.33.2"
 "aqua:helmfile/helmfile" = "1.1.3"
 "aqua:cilium/cilium-cli" = "0.18.5"
+"aqua:jqlang/jq" = "1.8.1"
 
 [tasks.omni-bootstrap]
 description = 'Bootstrap cluster'
