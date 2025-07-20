@@ -1,4 +1,5 @@
 Hotel
+    Installdisk serial: SS0L68728L1TH83107TD
     Longhorn: /dev/disk/by-id/nvme-Samsung_SSD_980_1TB_S649NL1T708722V
 
 India
@@ -6,6 +7,7 @@ India
     Longhorn: /dev/disk/by-id/nvme-Samsung_SSD_980_1TB_S649NX0T106248F
 
 Juliett
+    Installdisk serial: SS0L68728L1TH83107TF
     Longhorn: /dev/disk/by-id/nvme-Samsung_SSD_970_EVO_1TB_S5H9NS0N410306N
 
 Golf:
