@@ -6,10 +6,10 @@ machine:
     ephemeral:
       provider: luks2
       keys:
-        - nodeID: {}
+        - tpm: {}
           slot: 0
     state:
       provider: luks2
       keys:
-        - nodeID: {}
+        - tpm: {}
           slot: 0
