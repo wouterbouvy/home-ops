@@ -34,3 +34,19 @@ dir = "kubernetes/bootstrap/talos"
 description = 'Reset cluster'
 run = "omnictl cluster template delete -f omni-home-ops.yaml"
 dir = "kubernetes/bootstrap/talos"
+
+[tasks.omni-wipedisks]
+description = 'Wipe disks'
+run = [
+    "talosctl -n 10.0.8.10 wipe disk nvme1n1 --drop-partition",
+    "talosctl -n 10.0.8.20 wipe disk nvme1n1 --drop-partition",
+    "talosctl -n 10.0.8.30 wipe disk nvme1n1 --drop-partition"
+]
+
+[tasks.omni-reboot]
+description = 'Reboot nodes'
+run = [
+    "talosctl -n 10.0.8.10 reboot",
+    "talosctl -n 10.0.8.20 reboot",
+    "talosctl -n 10.0.8.30 reboot"
+]
