@@ -3,6 +3,9 @@ OMNICONFIG = "{{config_root}}/omniconfig"
 KUBECONFIG = "{{config_root}}/kubeconfig"
 TALOSCONFIG = "{{config_root}}/talosconfig"
 
+[vars]
+cluster = 'default'
+
 [tools]
 "aqua:siderolabs/talos" = "1.10.5"
 "aqua:siderolabs/omni/omnictl" = "1.0.0"
@@ -18,27 +21,57 @@ run = [
 ]
 dir = "kubernetes/bootstrap/talos"
 
+[tasks.mgmt-validate]
+description = "Validate Omni configuration"
+run = [
+    "omnictl cluster template validate -f omni-mgmt.yaml",
+]
+dir = "kubernetes/bootstrap/talos"
+
 [tasks.omni-sync]
 description = 'Sync cluster'
 run = [
     "omnictl cluster template sync -f omni-home-ops.yaml",
     "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false --force $KUBECONFIG"
+    "omnictl kubeconfig -c home-ops --force $KUBECONFIG"
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["omni-validate"]
 
+[tasks.mgmt-sync]
+description = 'Sync cluster'
+run = [
+    "omnictl cluster template sync -f omni-mgmt.yaml",
+    "omnictl talosconfig --merge=false --force $TALOSCONFIG",
+    "omnictl kubeconfig -c management --force $KUBECONFIG"
+]
+dir = "kubernetes/bootstrap/talos"
+depends = ["mgmt-validate"]
+
 [tasks.omni-bootstrap]
 description = 'Bootstrap cluster'
 run = [
-    "until kubectl --kubeconfig $KUBECONFIG wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
-    "helmfile --kubeconfig $KUBECONFIG --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
+    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-home-ops --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
 ]
 depends = ["omni-sync"]
+
+[tasks.mgmt-bootstrap]
+description = 'Bootstrap cluster'
+run = [
+    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
+]
+depends = ["mgmt-sync"]
 
 [tasks.omni-reset]
 description = 'Reset cluster'
 run = "omnictl cluster template delete -f omni-home-ops.yaml"
+dir = "kubernetes/bootstrap/talos"
+
+[tasks.mgmt-reset]
+description = 'Reset cluster'
+run = "omnictl cluster template delete -f omni-mgmt.yaml"
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-wipedisks]

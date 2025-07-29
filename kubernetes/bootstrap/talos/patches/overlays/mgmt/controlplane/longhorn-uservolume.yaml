@@ -1,0 +1,12 @@
+apiVersion: v1alpha1
+kind: UserVolumeConfig
+name: longhorn
+provisioning:
+  diskSelector:
+    match: disk.transport == 'sata' && disk.size > 300u * GB
+  minSize: 250GB
+# encryption:
+#   provider: luks2
+#   keys:
+#       - slot: 0
+#         tpm: {}

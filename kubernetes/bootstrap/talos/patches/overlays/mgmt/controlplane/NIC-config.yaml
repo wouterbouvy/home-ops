@@ -1,0 +1,12 @@
+machine:
+  network:
+    interfaces:
+      - interface: enp1s0
+        dhcp: false
+        vlans:
+          - vlanId: 8
+            routes:
+              - network: 0.0.0.0/0
+                gateway: 10.0.8.254
+    nameservers:
+    - 10.0.8.254
