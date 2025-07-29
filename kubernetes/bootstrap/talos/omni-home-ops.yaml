@@ -29,7 +29,7 @@ patches:
   - file: patches/base/controlplane/disable-admission-controller.yaml
   - file: patches/base/controlplane/etcd.yaml
   - file: patches/overlays/home-ops/controlplane/NIC-config.yaml
-
+  - file: patches/overlays/home-ops/controlplane/longhorn-uservolume.yaml
 ---
 kind: Workers
 machines:
@@ -48,13 +48,6 @@ patches:
                 - vlanId: 8
                   addresses:
                     - "10.0.8.10/24"
-  # - name: longhorn
-  #   inline:
-  #     machine:
-  #       disks:
-  #       - device: /dev/disk/by-id/nvme-Samsung_SSD_980_1TB_S649NL1T708722V
-  #         partitions:
-  #           - mountpoint: /var/mnt/longhorn
 ---
 kind: Machine
 name: 55962a00-2edf-11e9-be0a-a50e34f61300 # India
