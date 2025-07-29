@@ -17,7 +17,6 @@ run = [
     "until kubectl --kubeconfig $KUBECONFIG wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
     "helmfile --kubeconfig $KUBECONFIG --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
 ]
-dir = "kubernetes/bootstrap/talos"
 depends = ["omni-sync"]
 
 [tasks.omni-sync]
