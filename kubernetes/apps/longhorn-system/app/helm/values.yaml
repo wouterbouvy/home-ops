@@ -1,0 +1,12 @@
+defaultSettings:
+  defaultDataPath: /var/mnt/longhorn
+  defaultReplicaCount: 3
+  v1DataEngine: true
+  v2DataEngine: false
+
+persistence:
+  dataEngine: v1
+  defaultClassReplicaCount: 3
+
+preUpgradeChecker:
+  jobEnabled: false
