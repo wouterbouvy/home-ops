@@ -33,7 +33,7 @@ description = 'Sync cluster'
 run = [
     "omnictl cluster template sync -f omni-home-ops.yaml",
     "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c home-ops --force $KUBECONFIG"
+    "omnictl kubeconfig -c home-ops --service-account --user ci-user --force $KUBECONFIG"
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["omni-validate"]
@@ -43,7 +43,7 @@ description = 'Sync cluster'
 run = [
     "omnictl cluster template sync -f omni-mgmt.yaml",
     "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c management --force $KUBECONFIG"
+    "omnictl kubeconfig -c management --service-account --user ci-user --force $KUBECONFIG"
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["mgmt-validate"]
