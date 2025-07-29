@@ -11,6 +11,23 @@ TALOSCONFIG = "{{config_root}}/talosconfig"
 "aqua:cilium/cilium-cli" = "0.18.5"
 "aqua:jqlang/jq" = "1.8.1"
 
+[tasks.omni-validate]
+description = "Validate Omni configuration"
+run = [
+    "omnictl cluster template validate -f omni-home-ops.yaml",
+]
+dir = "kubernetes/bootstrap/talos"
+
+[tasks.omni-sync]
+description = 'Sync cluster'
+run = [
+    "omnictl cluster template sync -f omni-home-ops.yaml",
+    "omnictl talosconfig --merge=false --force $TALOSCONFIG",
+    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false --force $KUBECONFIG"
+]
+dir = "kubernetes/bootstrap/talos"
+depends = ["omni-validate"]
+
 [tasks.omni-bootstrap]
 description = 'Bootstrap cluster'
 run = [
@@ -18,16 +35,6 @@ run = [
     "helmfile --kubeconfig $KUBECONFIG --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
 ]
 depends = ["omni-sync"]
-
-[tasks.omni-sync]
-description = 'Sync cluster'
-run = [
-    "omnictl cluster template validate -f omni-home-ops.yaml",
-    "omnictl cluster template sync -f omni-home-ops.yaml",
-    "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false --force $KUBECONFIG"
-]
-dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-reset]
 description = 'Reset cluster'
