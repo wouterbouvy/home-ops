@@ -12,6 +12,7 @@ patches:
   - file: patches/base/global/kubelet.yaml
   - file: patches/base/global/disable-search-domain.yaml
   - file: patches/base/global/sysctl.yaml
+  - file: patches/base/global/containerd.yaml
 systemExtensions:
   - siderolabs/i915
   - siderolabs/intel-ucode
