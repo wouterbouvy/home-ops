@@ -1,7 +1,4 @@
 machine:
-  install:
-    diskSelector:
-      size: <= 300GB
   systemDiskEncryption:
     ephemeral:
       provider: luks2
