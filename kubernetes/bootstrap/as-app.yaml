@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: apps
+  namespace: argocd
+spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
+  generators:
+    - git:
+        repoURL: https://github.com/wouterbouvy/home-ops.git
+        revision: HEAD
+        directories:
+          - path: kubernetes/apps/cluster-addons/*
+  template:
+    metadata:
+      name: "app-{{.path.basename}}"
+    spec:
+      project: "default"
+      source:
+        repoURL: https://github.com/wouterbouvy/home-ops.git
+        targetRevision: HEAD
+        path: "{{.path.path}}"
+        # plugin:
+        #   name: argocd-vault-plugin-kustomize
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: '{{.path.basename}}'
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true

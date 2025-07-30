@@ -51,16 +51,16 @@ depends = ["mgmt-validate"]
 [tasks.omni-bootstrap]
 description = 'Bootstrap cluster'
 run = [
-    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
-    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-home-ops --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
+    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops-ci-user wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-home-ops-ci-user --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff",
 ]
 depends = ["omni-sync"]
 
 [tasks.mgmt-bootstrap]
 description = 'Bootstrap cluster'
 run = [
-    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
-    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
+    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management-ci-user wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management-ci-user --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
 ]
 depends = ["mgmt-sync"]
 
