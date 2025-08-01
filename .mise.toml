@@ -33,7 +33,7 @@ description = 'Sync cluster'
 run = [
     "omnictl cluster template sync -f omni-home-ops.yaml",
     "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c home-ops --service-account --user ci-user --force $KUBECONFIG"
+    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false --force $KUBECONFIG"
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["omni-validate"]
@@ -43,7 +43,7 @@ description = 'Sync cluster'
 run = [
     "omnictl cluster template sync -f omni-mgmt.yaml",
     "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c management --service-account --user ci-user --force $KUBECONFIG"
+    "omnictl kubeconfig -c management --merge=false --force $KUBECONFIG"
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["mgmt-validate"]
@@ -59,8 +59,8 @@ depends = ["omni-sync"]
 [tasks.mgmt-bootstrap]
 description = 'Bootstrap cluster'
 run = [
-    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management-ci-user wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
-    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management-ci-user --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
+    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff"
 ]
 depends = ["mgmt-sync"]
 

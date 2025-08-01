@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
   name: apps
-  namespace: argocd
+  namespace: argo-system
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
@@ -11,10 +11,10 @@ spec:
         repoURL: https://github.com/wouterbouvy/home-ops.git
         revision: HEAD
         directories:
-          - path: kubernetes/apps/cluster-addons/*
+          - path: kubernetes/apps/system/*
   template:
     metadata:
-      name: "app-{{.path.basename}}"
+      name: "sys-{{.path.basename}}"
     spec:
       project: "default"
       source:
