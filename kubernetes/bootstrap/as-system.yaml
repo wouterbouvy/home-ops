@@ -11,7 +11,7 @@ spec:
         repoURL: https://github.com/wouterbouvy/home-ops.git
         revision: HEAD
         directories:
-          - path: kubernetes/apps/system/*
+          - path: kubernetes/system/*
   template:
     metadata:
       name: "sys-{{.path.basename}}"
