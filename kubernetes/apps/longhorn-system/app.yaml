@@ -5,10 +5,6 @@ metadata:
   namespace: argo-system
 spec:
   project: default
-  syncPolicy:
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
   destination:
     server: https://kubernetes.default.svc
     namespace: longhorn-system
@@ -21,5 +17,16 @@ spec:
           - $repo/kubernetes/apps/longhorn-system/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
       path: kubernetes/apps/longhorn-system
-      targetRevision: main
+      targetRevision: master
       ref: repo
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
