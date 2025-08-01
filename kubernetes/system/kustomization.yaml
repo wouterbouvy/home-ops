@@ -4,4 +4,4 @@ kind: Kustomization
 resources:
   - argo-system
   - longhorn-system
-  - gateway-api
+  # - gateway-api
