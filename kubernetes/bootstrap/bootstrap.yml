@@ -1,0 +1,22 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: system
+  namespace: argo-system
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/wouterbouvy/home-ops.git
+    targetRevision: master
+    path: kubernetes/system
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argo-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
+
