@@ -22,7 +22,7 @@ spec:
       ref: repo
   destination:
     name: in-cluster
-    namespace: argo-system
+    namespace: cert-manager
   syncPolicy:
     automated:
       allowEmpty: true
