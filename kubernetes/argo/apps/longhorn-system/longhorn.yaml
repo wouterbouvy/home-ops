@@ -14,7 +14,7 @@ spec:
       targetRevision: 1.9.1
       helm:
         valueFiles:
-          - $repo/kubernetes/system/longhorn-system/values.yaml
+          - $repo/kubernetes/apps/longhorn-system/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
       # path: kubernetes/apps/longhorn-system
       targetRevision: master

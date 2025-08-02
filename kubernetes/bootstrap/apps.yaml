@@ -1,0 +1,35 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: apps
+  namespace: argo-system
+  # annotations:
+  #   argocd.argoproj.io/sync-wave: '-1'
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/wouterbouvy/home-ops.git"
+    path: kubernetes/argo/apps
+    targetRevision: master
+    directory:
+      recurse: true
+  destination:
+    name: in-cluster
+    namespace: argo-system
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+  # ignoreDifferences:
+  #   - group: argoproj.io
+  #     kind: Application
+  #     jsonPointers:
+  #       - /spec/syncPolicy
