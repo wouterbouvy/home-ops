@@ -14,7 +14,6 @@ spec:
     targetRevision: main
     directory:
       recurse: true
-      exclude: "kube-system/spegel/*"
   destination:
     name: in-cluster
     namespace: argo-system

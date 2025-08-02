@@ -1,8 +1,8 @@
 ---
 spegel:
   containerdRegistryConfigPath: /etc/cri/conf.d/hosts
-  additionalMirrorRegistries:
-    - https://registry.im25.nl
+  # additionalMirrorRegistries:
+  #   - https://registry.im25.nl
 service:
   registry:
     hostPort: 29999
