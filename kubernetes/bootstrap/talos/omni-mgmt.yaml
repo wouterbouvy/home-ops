@@ -5,7 +5,7 @@ kubernetes:
   version: v1.33.3
 talos:
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
-  version: v1.10.6
+  version: v1.10.5
 patches:
   - file: patches/base/global/cluster.yaml
   - file: patches/base/global/disks.yaml
@@ -13,6 +13,7 @@ patches:
   - file: patches/base/global/disable-search-domain.yaml
   - file: patches/base/global/sysctl.yaml
   - file: patches/base/global/containerd.yaml
+  - file: patches/base/global/registry-mirror.yaml
 systemExtensions:
   - siderolabs/i915
   - siderolabs/intel-ucode

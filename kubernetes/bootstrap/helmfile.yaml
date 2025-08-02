@@ -47,4 +47,5 @@ releases:
     version: 8.2.5
     # values: ['../kubernetes/apps/argo-system/argo-cd/values.yaml']
     # secrets: ['../kubernetes/apps/argo-system/argo-cd/values.sops.yaml']
-    needs: ['kube-system/spegel']
+    needs: 
+      - kube-system/spegel
