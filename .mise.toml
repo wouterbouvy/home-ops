@@ -7,7 +7,7 @@ TALOSCONFIG = "{{config_root}}/talosconfig"
 cluster = 'default'
 
 [tools]
-"aqua:siderolabs/talos" = "1.10.5"
+"aqua:siderolabs/talos" = "1.10.6"
 "aqua:siderolabs/omni/omnictl" = "1.0.0"
 "aqua:kubernetes/kubectl" = "1.33.2"
 "aqua:helmfile/helmfile" = "1.1.3"
