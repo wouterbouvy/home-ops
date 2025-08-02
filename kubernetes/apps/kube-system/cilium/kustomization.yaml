@@ -4,3 +4,4 @@ resources:
 # renovate: datasource=github-releases depName=kubernetes-sigs/gateway-api
 - https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
 - ./ipv4-pool.yaml
+- ./cilium_l2_accouncement.yaml
