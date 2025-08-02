@@ -4,6 +4,8 @@ spegel:
 service:
   registry:
     hostPort: 29999
+  additionalMirrorRegistries:
+    - https://registry.im25.nl
 # serviceMonitor:
 #   enabled: true
 # grafanaDashboard:
