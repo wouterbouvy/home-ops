@@ -11,7 +11,7 @@ spec:
   source:
     repoURL: "https://github.com/wouterbouvy/home-ops.git"
     path: kubernetes/argo/apps
-    targetRevision: master
+    targetRevision: main
     directory:
       recurse: true
   destination:

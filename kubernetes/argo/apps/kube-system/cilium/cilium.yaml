@@ -18,7 +18,7 @@ spec:
           - $repo/kubernetes/apps/kube-system/cilium/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
       path: kubernetes/apps/kube-system/cilium
-      targetRevision: master
+      targetRevision: main
       ref: repo
   destination:
     name: in-cluster
