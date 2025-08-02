@@ -25,5 +25,5 @@ talosconfig
 # wiki
 # # Bootstrap
 # /config.yaml
-# #temp
-# /temp
+#temp
+/temp
