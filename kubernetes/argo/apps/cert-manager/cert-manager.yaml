@@ -9,18 +9,17 @@ metadata:
 spec:
   project: default
   sources:
-    # - repoURL: "https://github.com/ajaykumar4/home-lab.git"
-    #   path: kubernetes/apps/argo-system/argo-cd
-    #   targetRevision: main
-    #   ref: repo
     - repoURL: https://charts.jetstack.io
       chart: cert-manager
       targetRevision: v1.18.2 
       helm:
         releaseName: cert-manager
-      #   valueFiles:
-      #     - $repo/kubernetes/apps/argo-system/argo-cd/values.yaml
-      #     - $repo/kubernetes/apps/argo-system/argo-cd/values.sops.yaml
+        valueFiles:
+          - $repo/kubernetes/apps/cert-manager/values.yaml
+    - repoURL: "https://github.com/wouterbouvy/home-ops.git"
+      path: kubernetes/apps/cert-manager
+      targetRevision: master
+      ref: repo
   destination:
     name: in-cluster
     namespace: argo-system
