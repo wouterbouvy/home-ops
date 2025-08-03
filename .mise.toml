@@ -13,6 +13,7 @@ cluster = 'default'
 "aqua:helmfile/helmfile" = "1.1.3"
 "aqua:cilium/cilium-cli" = "0.18.6"
 "aqua:jqlang/jq" = "1.8.1"
+"aqua:1password/cli" = "2.31.1"
 
 [tasks.omni-validate]
 description = "Validate Omni configuration"
@@ -60,11 +61,20 @@ depends = ["omni-sync"]
 description = 'Bootstrap cluster'
 run = [
     "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "mise run mgmt-1password-bootstrap",
     "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management --file helmfile.yaml apply --skip-diff-on-install --suppress-diff",
     "kubectl --namespace argo-system apply --server-side --filename argo-apps.yaml"
 ]
 depends = ["mgmt-sync"]
 dir = "kubernetes/bootstrap"
+
+[tasks.mgmt-1password-bootstrap]
+description = "Create 1Password token for external-secrets"
+run = [
+    "kubectl create namespace external-secrets",
+    "kubectl create secret generic 1password-token -n external-secrets --from-literal=token='$(op read op://k8s-secrets/kjbt5chc4fgrgsian5acx2f74u/credential)' --dry-run=client -o yaml | kubectl apply -f -",
+    "op signout",
+]
 
 [tasks.omni-reset]
 description = 'Reset cluster'
