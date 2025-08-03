@@ -69,10 +69,12 @@ depends = ["mgmt-sync"]
 dir = "kubernetes/bootstrap"
 
 [tasks.mgmt-1password-bootstrap]
-description = "Create 1Password token for external-secrets"
+description = "Create 1Password token for External Secrets Operator"
 run = [
-    "kubectl create namespace external-secrets",
-    "kubectl create secret generic 1password-token -n external-secrets --from-literal=token='$(op read op://k8s-secrets/kjbt5chc4fgrgsian5acx2f74u/credential)' --dry-run=client -o yaml | kubectl apply -f -",
+    "kubectl get namespace external-secrets || kubectl create namespace external-secrets",
+    "op read op://k8s-secrets/kjbt5chc4fgrgsian5acx2f74u/credential --out-file 1password-token",
+    "kubectl create secret generic 1password-token -n external-secrets --from-file=token=1password-token --dry-run=client -o yaml | kubectl apply -f -",
+    "rm 1password-token",
     "op signout",
 ]
 
