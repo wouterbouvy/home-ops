@@ -45,7 +45,7 @@ releases:
     namespace: argo-system
     chart: oci://ghcr.io/argoproj/argo-helm/argo-cd
     version: 8.2.5
-    values: ['../apps/argo-system/argo-cd/values.yaml']
+    values: ['../apps/argo-system/values.yaml']
     # secrets: ['../kubernetes/apps/argo-system/argo-cd/values.sops.yaml']
     needs: 
       - kube-system/spegel
