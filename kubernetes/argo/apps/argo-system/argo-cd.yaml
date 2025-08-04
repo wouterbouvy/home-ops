@@ -11,18 +11,18 @@ metadata:
 spec:
   project: default
   sources:
-    # - repoURL: "https://github.com/ajaykumar4/home-lab.git"
-    #   path: kubernetes/apps/argo-system/argo-cd
-    #   targetRevision: main
-    #   ref: repo
     - repoURL: ghcr.io/argoproj/argo-helm
       chart: argo-cd
       targetRevision: 8.2.4
       helm:
         releaseName: argo-cd
-      #   valueFiles:
-      #     - $repo/kubernetes/apps/argo-system/argo-cd/values.yaml
+        valueFiles:
+          - $repo/kubernetes/apps/argo-system/values.yaml
       #     - $repo/kubernetes/apps/argo-system/argo-cd/values.sops.yaml
+    - repoURL: "https://github.com/wouterbouvy/home-ops.git"
+      path: kubernetes/apps/argo-system
+      targetRevision: main
+      ref: repo
   destination:
     name: in-cluster
     namespace: argo-system
