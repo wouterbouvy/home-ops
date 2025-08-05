@@ -8,7 +8,6 @@ talos:
   version: v1.10.6
 patches:
   - file: patches/base/global/cluster.yaml
-  - file: patches/base/global/disks.yaml
   - file: patches/base/global/kubelet.yaml
   - file: patches/base/global/disable-search-domain.yaml
   - file: patches/base/global/sysctl.yaml
@@ -23,17 +22,22 @@ systemExtensions:
 ---
 kind: ControlPlane
 machines:
-  - 4c4c4544-0046-3610-8043-b4c04f355032
-  - 4c4c4544-004b-3410-8043-b2c04f355032
-  - 4c4c4544-004c-3010-8034-c3c04f5a5a32
+  - 4c4c4544-0046-3610-8043-b4c04f355032 # November
+  - 4c4c4544-004b-3410-8043-b2c04f355032 # Oscar 
+  - 4c4c4544-004c-3010-8034-c3c04f5a5a32 # Papa
 patches:
+  - file: patches/base/controlplane/allow-scheduling-on-cp.yaml
   - file: patches/base/controlplane/disable-admission-controller.yaml
   - file: patches/base/controlplane/etcd.yaml
+  - file: patches/overlays/mgmt/controlplane/disks.yaml
   - file: patches/overlays/mgmt/controlplane/NIC-config.yaml
   - file: patches/overlays/mgmt/controlplane/longhorn-uservolume.yaml
 ---
 kind: Workers
 machines:
+  - 01fd8f80-7f3a-11ef-b63d-18140ff92600 # Kilo
+  - ca789e80-a5de-11ef-b06b-dad7a9032100 # Lima
+  - b5668400-7f3a-11ef-92d7-72fb21731700 # Mike
 ---
 kind: Machine
 name: 4c4c4544-0046-3610-8043-b4c04f355032 # November
