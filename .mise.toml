@@ -18,13 +18,6 @@ cluster = 'default'
 [tasks.omni-validate]
 description = "Validate Omni configuration"
 run = [
-    "omnictl cluster template validate -f omni-home-ops.yaml",
-]
-dir = "kubernetes/bootstrap/talos"
-
-[tasks.mgmt-validate]
-description = "Validate Omni configuration"
-run = [
     "omnictl cluster template validate -f omni-mgmt.yaml",
 ]
 dir = "kubernetes/bootstrap/talos"
@@ -32,43 +25,25 @@ dir = "kubernetes/bootstrap/talos"
 [tasks.omni-sync]
 description = 'Sync cluster'
 run = [
-    "omnictl cluster template sync -f omni-home-ops.yaml",
-    "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c home-ops --service-account --user ci-user --merge=false --force $KUBECONFIG"
-]
-dir = "kubernetes/bootstrap/talos"
-depends = ["omni-validate"]
-
-[tasks.mgmt-sync]
-description = 'Sync cluster'
-run = [
     "omnictl cluster template sync -f omni-mgmt.yaml",
     "omnictl talosconfig --merge=false --force $TALOSCONFIG",
     "omnictl kubeconfig -c management --merge=false --force $KUBECONFIG"
 ]
 dir = "kubernetes/bootstrap/talos"
-depends = ["mgmt-validate"]
+depends = ["omni-validate"]
 
 [tasks.omni-bootstrap]
 description = 'Bootstrap cluster'
 run = [
-    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops-ci-user wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
-    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-home-ops-ci-user --file {{config_root}}/kubernetes/bootstrap/helmfile.yaml apply --skip-diff-on-install --suppress-diff",
-]
-depends = ["omni-sync"]
-
-[tasks.mgmt-bootstrap]
-description = 'Bootstrap cluster'
-run = [
     "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
-    "mise run mgmt-1password-bootstrap",
+    "mise run omni-1password-bootstrap",
     "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management --file helmfile.yaml apply --skip-diff-on-install --suppress-diff",
     "kubectl --namespace argo-system apply --server-side --filename argo-apps.yaml"
 ]
-depends = ["mgmt-sync"]
+depends = ["omni-sync"]
 dir = "kubernetes/bootstrap"
 
-[tasks.mgmt-1password-bootstrap]
+[tasks.omni-1password-bootstrap]
 description = "Create 1Password token for External Secrets Operator"
 run = [
     "kubectl get namespace external-secrets || kubectl create namespace external-secrets",
@@ -80,26 +55,21 @@ run = [
 
 [tasks.omni-reset]
 description = 'Reset cluster'
-run = "omnictl cluster template delete -f omni-home-ops.yaml"
-dir = "kubernetes/bootstrap/talos"
-
-[tasks.mgmt-reset]
-description = 'Reset cluster'
 run = "omnictl cluster template delete -f omni-mgmt.yaml"
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-wipedisks]
 description = 'Wipe disks'
 run = [
-    "talosctl -n 10.0.8.10 wipe disk nvme1n1 --drop-partition",
-    "talosctl -n 10.0.8.20 wipe disk nvme1n1 --drop-partition",
-    "talosctl -n 10.0.8.30 wipe disk nvme1n1 --drop-partition"
+    "talosctl -n 10.0.8.40 wipe disk sda --drop-partition",
+    "talosctl -n 10.0.8.50 wipe disk sda --drop-partition",
+    "talosctl -n 10.0.8.60 wipe disk sda --drop-partition"
 ]
 
 [tasks.omni-reboot]
 description = 'Reboot nodes'
 run = [
-    "talosctl -n 10.0.8.10 reboot",
-    "talosctl -n 10.0.8.20 reboot",
-    "talosctl -n 10.0.8.30 reboot"
+    "talosctl -n 10.0.8.40 reboot",
+    "talosctl -n 10.0.8.50 reboot",
+    "talosctl -n 10.0.8.60 reboot"
 ]
