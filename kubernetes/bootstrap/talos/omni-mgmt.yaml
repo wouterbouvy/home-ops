@@ -35,9 +35,9 @@ patches:
 ---
 kind: Workers
 machines:
-  - 01fd8f80-7f3a-11ef-b63d-18140ff92600 # Kilo
-  - ca789e80-a5de-11ef-b06b-dad7a9032100 # Lima
-  - b5668400-7f3a-11ef-92d7-72fb21731700 # Mike
+  # - 01fd8f80-7f3a-11ef-b63d-18140ff92600 # Kilo
+  # - ca789e80-a5de-11ef-b06b-dad7a9032100 # Lima
+  # - b5668400-7f3a-11ef-92d7-72fb21731700 # Mike
 ---
 kind: Machine
 name: 4c4c4544-0046-3610-8043-b4c04f355032 # November
