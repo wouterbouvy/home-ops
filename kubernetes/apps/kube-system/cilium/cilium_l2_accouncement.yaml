@@ -5,7 +5,7 @@ metadata:
   name: l2-announcement-policy
   namespace: kube-system
 spec:
-  interfaces:
-    - enp1s0 # Replace with your interface name
+  # interfaces:
+  #   - enp1s0 # Replace with your interface name
   externalIPs: true
   loadBalancerIPs: true
