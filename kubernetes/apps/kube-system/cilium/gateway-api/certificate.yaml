@@ -5,7 +5,7 @@ metadata:
 spec:
   secretName: k5s-dev-production-tls
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt-production
     kind: ClusterIssuer
   commonName: k5s.dev
   dnsNames:
