@@ -2,15 +2,15 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: internal
-  annotations:
+  # annotations:
     # external-dns.alpha.kubernetes.io/target: internal.k5s.dev
 spec:
   gatewayClassName: cilium
   addresses:
     - type: IPAddress
       value: 10.0.8.110
-  infrastructure:
-    annotations:
+  # infrastructure:
+  #   annotations:
       # external-dns.alpha.kubernetes.io/hostname: internal.k5s.dev
   listeners:
     - name: http
