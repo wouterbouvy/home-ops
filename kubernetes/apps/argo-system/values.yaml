@@ -2,18 +2,19 @@ fullnameOverride: "argocd"
 configs:
   params:
     server.insecure: true
+    controller.diff.server.side: true
 
-# redis-ha:
-#   enabled: true
+redis-ha:
+  enabled: true
 
-# controller:
-#   replicas: 1
+controller:
+  replicas: 1
 
-# server:
-#   replicas: 2
+server:
+  replicas: 2
 
-# repoServer:
-#   replicas: 2
+repoServer:
+  replicas: 2
 
-# applicationSet:
-#   replicas: 2
+applicationSet:
+  replicas: 2
