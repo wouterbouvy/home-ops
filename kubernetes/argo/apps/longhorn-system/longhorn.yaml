@@ -16,7 +16,7 @@ spec:
         valueFiles:
           - $repo/kubernetes/apps/longhorn-system/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
-      # path: kubernetes/apps/longhorn-system
+      path: kubernetes/apps/longhorn-system
       targetRevision: main
       ref: repo
   syncPolicy:
