@@ -20,6 +20,8 @@ envoy:
   enabled: false
 gatewayAPI:
   enabled: true
+  gatewayClass:
+    create: "true"
 hubble:
   enabled: false
 ipam:
