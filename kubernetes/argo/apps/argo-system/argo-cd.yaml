@@ -15,6 +15,7 @@ spec:
       chart: argo-cd
       targetRevision: 8.2.4
       helm:
+        releaseName: argo-cd
         valueFiles:
           - $repo/kubernetes/apps/argo-system/values.yaml
       #     - $repo/kubernetes/apps/argo-system/argo-cd/values.sops.yaml
