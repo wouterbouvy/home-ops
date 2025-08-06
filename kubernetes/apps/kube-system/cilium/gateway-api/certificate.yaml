@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: k5s-dev-production
+spec:
+  secretName: k5s-dev-production-tls
+  issuerRef:
+    name: letsencrypt-staging
+    kind: ClusterIssuer
+  commonName: k5s.dev
+  dnsNames:
+    - k5s.dev
+    - '*.k5s.dev'

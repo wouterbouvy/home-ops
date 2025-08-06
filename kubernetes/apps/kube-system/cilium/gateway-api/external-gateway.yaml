@@ -1,0 +1,33 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: external
+  annotations:
+    # external-dns.alpha.kubernetes.io/target: external.k5s.dev
+spec:
+  gatewayClassName: cilium
+  addresses:
+    - type: IPAddress
+      value: 10.0.8.120
+  infrastructure:
+    annotations:
+      # external-dns.alpha.kubernetes.io/hostname: external.k5s.dev
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      hostname: '*.k5s.dev'
+      allowedRoutes:
+        namespaces:
+          from: Same
+    - name: https
+      protocol: HTTPS
+      port: 443
+      hostname: '*.k5s.dev'
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - kind: Secret
+            name: k5s-dev-production-tls
