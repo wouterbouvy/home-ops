@@ -30,16 +30,16 @@ releases:
     needs:
       - kube-system/cilium
 
-  - name: spegel
-    namespace: kube-system
-    atomic: true
-    chart: oci://ghcr.io/spegel-org/helm-charts/spegel
-    version: 0.3.0
-    values:
-      - ../apps/kube-system/spegel/values.yaml
-    needs:
-      - kube-system/cilium
-      - kube-system/coredns
+  # - name: spegel
+  #   namespace: kube-system
+  #   atomic: true
+  #   chart: oci://ghcr.io/spegel-org/helm-charts/spegel
+  #   version: 0.3.0
+  #   values:
+  #     - ../apps/kube-system/spegel/values.yaml
+  #   needs:
+  #     - kube-system/cilium
+  #     - kube-system/coredns
 
   - name: argo-cd
     namespace: argo-system
@@ -48,4 +48,4 @@ releases:
     values: ['../apps/argo-system/values.yaml']
     # secrets: ['../kubernetes/apps/argo-system/argo-cd/values.sops.yaml']
     needs: 
-      - kube-system/spegel
+      - kube-system/cilium
