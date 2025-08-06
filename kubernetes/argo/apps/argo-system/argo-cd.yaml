@@ -18,6 +18,7 @@ spec:
         releaseName: argo-cd
         valueFiles:
           - $repo/kubernetes/apps/argo-system/values.yaml
+          - $repo/kubernetes/apps/argo-system/ha-values.yaml
       #     - $repo/kubernetes/apps/argo-system/argo-cd/values.sops.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
       path: kubernetes/apps/argo-system
