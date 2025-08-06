@@ -6,6 +6,6 @@ metadata:
   namespace: kube-system
 spec:
   interfaces:
-    - eth0 #TODO: Replace with your interface name
+    - enp1s0 #TODO: Replace with your interface name
   externalIPs: true
   loadBalancerIPs: true
