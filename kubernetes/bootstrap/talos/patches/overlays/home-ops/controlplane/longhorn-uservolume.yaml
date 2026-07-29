@@ -5,3 +5,9 @@ provisioning:
   diskSelector:
     match: disk.transport == 'nvme' && disk.size > 300u * GB
   minSize: 250GB
+encryption:
+  provider: luks2
+  keys:
+    - nodeID: {}
+      slot: 0
+      lockToState: true
