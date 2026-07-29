@@ -30,4 +30,4 @@ spec:
       tls:
         certificateRefs:
           - kind: Secret
-            name: k5s-dev-production-tls
+            name: k5s-dev-staging-tls
