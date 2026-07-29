@@ -10,25 +10,42 @@ cluster = 'default'
 "aqua:siderolabs/talos" = "1.13.7"
 "aqua:siderolabs/omni/omnictl" = "1.9.3"
 "aqua:kubernetes/kubectl" = "1.36.2"
-"aqua:helmfile/helmfile" = "1.7.1"
+"aqua:helm/helm" = "3.18.6"
 "aqua:cilium/cilium-cli" = "0.19.7"
 "aqua:jqlang/jq" = "1.8.2"
-"aqua:1password/cli" = "v2.38.1"
+"aqua:1password/cli" = "v2.35.0"
 "aqua:kubevirt/kubevirt/virtctl" = "v1.8.4"
+"aqua:int128/kubelogin" = "1.36.2"
+
+[tasks.manifests-render]
+description = "Render Cilium, CoreDNS, Spegel, and Argo CD Helm charts to Omni bootstrap manifests"
+run = [
+    "mkdir -p manifests",
+    "curl -fsSL -o manifests/gateway-api.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml",
+    "helm repo add cilium https://helm.cilium.io --force-update",
+    "helm repo update cilium",
+    "helm template cilium cilium/cilium --version 1.20.0 --namespace kube-system --values ../../apps/kube-system/cilium/values.yaml > manifests/cilium.yaml",
+    "helm template coredns oci://ghcr.io/coredns/charts/coredns --version 1.46.2 --namespace kube-system --values ../../apps/kube-system/coredns/values.yaml > manifests/coredns.yaml",
+    "helm template spegel oci://ghcr.io/spegel-org/helm-charts/spegel --version 0.7.4 --namespace kube-system --values ../../apps/kube-system/spegel/values.yaml > manifests/spegel.yaml",
+    """printf '%s\\n' '---' 'apiVersion: v1' 'kind: Namespace' 'metadata:' '  name: argo-system' > manifests/argo-cd.yaml""",
+    "helm template argo-cd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 10.2.1 --namespace argo-system --values ../../apps/argo-system/values.yaml --include-crds >> manifests/argo-cd.yaml",
+]
+dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-validate]
 description = "Validate Omni configuration"
 run = [
-    "omnictl cluster template validate -f omni-mgmt.yaml",
+    "omnictl cluster template validate -f omni-home-ops.yaml",
 ]
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-sync]
 description = 'Sync cluster'
 run = [
-    "omnictl cluster template sync -f omni-mgmt.yaml",
+    "mise run manifests-render",
+    "omnictl cluster template sync -f omni-home-ops.yaml",
     "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c management --merge=false --force $KUBECONFIG"
+    "omnictl kubeconfig -c home-ops --merge=false --force $KUBECONFIG"
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["omni-validate"]
@@ -36,10 +53,10 @@ depends = ["omni-validate"]
 [tasks.omni-bootstrap]
 description = 'Bootstrap cluster'
 run = [
-    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-management wait --for=condition=Ready=False nodes --all --timeout=600s; do sleep 10; done",
+    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done",
     "mise run omni-1password-bootstrap",
-    "helmfile --kubeconfig $KUBECONFIG --kube-context k5s-home-ops-management --file helmfile.yaml apply --skip-diff-on-install --suppress-diff",
-    "kubectl --namespace argo-system apply --server-side --filename argo-apps.yaml"
+    "kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops -n argo-system wait --for=condition=available deployment -l app.kubernetes.io/name=argocd-server --timeout=600s",
+    "kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops --namespace argo-system apply --server-side --filename argo-apps.yaml"
 ]
 depends = ["omni-sync"]
 dir = "kubernetes/bootstrap"
@@ -56,21 +73,21 @@ run = [
 
 [tasks.omni-reset]
 description = 'Reset cluster'
-run = "omnictl cluster template delete -f omni-mgmt.yaml"
+run = "omnictl cluster template delete -f omni-home-ops.yaml"
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-wipedisks]
 description = 'Wipe disks'
 run = [
-    "talosctl -n 10.0.8.40 wipe disk sda --drop-partition",
-    "talosctl -n 10.0.8.50 wipe disk sda --drop-partition",
-    "talosctl -n 10.0.8.60 wipe disk sda --drop-partition"
+    "talosctl -n 10.0.8.3 wipe disk sda --drop-partition",
+    "talosctl -n 10.0.8.4 wipe disk sda --drop-partition",
+    "talosctl -n 10.0.8.5 wipe disk sda --drop-partition"
 ]
 
 [tasks.omni-reboot]
 description = 'Reboot nodes'
 run = [
-    "talosctl -n 10.0.8.40 reboot",
-    "talosctl -n 10.0.8.50 reboot",
-    "talosctl -n 10.0.8.60 reboot"
+    "talosctl -n 10.0.8.3 reboot",
+    "talosctl -n 10.0.8.4 reboot",
+    "talosctl -n 10.0.8.5 reboot"
 ]

@@ -3,12 +3,28 @@ name: home-ops
 kubernetes:
 # renovate: datasource=docker depName=ghcr.io/siderolabs/kubelet
   version: v1.36.2
+  manifests:
+    - name: gateway-api
+      file: manifests/gateway-api.yaml
+      mode: one-time
+    - name: cilium
+      file: manifests/cilium.yaml
+      mode: one-time
+    - name: coredns
+      file: manifests/coredns.yaml
+      mode: one-time
+    - name: spegel
+      file: manifests/spegel.yaml
+      mode: one-time
+    - name: argo-cd
+      file: manifests/argo-cd.yaml
+      mode: one-time
 talos:
 # renovate: datasource=docker depName=ghcr.io/siderolabs/installer
   version: v1.13.7
 patches:
   - file: patches/base/global/cluster.yaml
-  - file: patches/base/global/disks.yaml
+  # - file: patches/base/global/disks.yaml
   - file: patches/base/global/kubelet.yaml
   - file: patches/base/global/disable-search-domain.yaml
   - file: patches/base/global/sysctl.yaml
@@ -16,66 +32,79 @@ patches:
 systemExtensions:
   - siderolabs/i915
   - siderolabs/intel-ucode
-  - siderolabs/gasket-driver
   - siderolabs/iscsi-tools
   - siderolabs/util-linux-tools
 ---
 kind: ControlPlane
 machines:
-  - 091ce700-c435-11e8-a46f-24a9ea0b0c00 # Hotel
-  - 55962a00-2edf-11e9-be0a-a50e34f61300 # India
-  - bc661400-2edc-11e9-b33f-222a5a021400 # Juliett
+  - 5ea7c280-c43a-11e8-989b-7a47211d0c00 # Delta
+  - 3f1eae80-fa16-11e8-b2a5-75afac5e1000 # Echo
+  - 40210000-2edf-11e9-8a32-485d16011400 # Foxtrot
 patches:
   - file: patches/base/controlplane/disable-admission-controller.yaml
   - file: patches/base/controlplane/etcd.yaml
-  - file: patches/overlays/home-ops/controlplane/disk-encryption.yaml
+  - file: patches/base/controlplane/allow-scheduling-on-cp.yaml
+  # - file: patches/overlays/home-ops/controlplane/disk-encryption.yaml
   - file: patches/overlays/home-ops/controlplane/NIC-config.yaml
   - file: patches/overlays/home-ops/controlplane/longhorn-uservolume.yaml
+  # - file: patches/overlays/home-ops/controlplane/longhorn-v2-params.yaml
 ---
 kind: Workers
 machines:
 ---
 kind: Machine
-name: 091ce700-c435-11e8-a46f-24a9ea0b0c00 # Hotel
+name: 5ea7c280-c43a-11e8-989b-7a47211d0c00 # Delta
 patches:
-  - name: NIC config
+  - name: hostname
     inline:
-      machine:
-        network:
-          hostname: hotel
-          interfaces:
-            - interface: enp1s0f0np0
-              vlans:
-                - vlanId: 8
-                  addresses:
-                    - "10.0.8.10/24"
+      apiVersion: v1alpha1
+      kind: HostnameConfig
+      hostname: delta
+      auto: off
+  - name: vlan
+    inline:
+      apiVersion: v1alpha1
+      kind: VLANConfig
+      name: eno1.8
+      vlanID: 8
+      parent: eno1
+      addresses:
+        - address: 10.0.8.3/24
 ---
 kind: Machine
-name: 55962a00-2edf-11e9-be0a-a50e34f61300 # India
+name: 3f1eae80-fa16-11e8-b2a5-75afac5e1000 # Echo
 patches:
-  - name: NIC config
+  - name: hostname
     inline:
-      machine:
-        network:
-          hostname: india
-          interfaces:
-            - interface: enp1s0f0np0
-              vlans:
-                - vlanId: 8
-                  addresses:
-                    - "10.0.8.20/24"
+      apiVersion: v1alpha1
+      kind: HostnameConfig
+      hostname: echo
+      auto: off
+  - name: vlan
+    inline:
+      apiVersion: v1alpha1
+      kind: VLANConfig
+      name: eno1.8
+      vlanID: 8
+      parent: eno1
+      addresses:
+        - address: 10.0.8.4/24
 ---
 kind: Machine
-name: bc661400-2edc-11e9-b33f-222a5a021400 # Juliett
+name: 40210000-2edf-11e9-8a32-485d16011400 # Foxtrot
 patches:
-  - name: NIC config
+  - name: hostname
     inline:
-      machine:
-        network:
-          hostname: juliett
-          interfaces:
-            - interface: enp1s0f0np0
-              vlans:
-                - vlanId: 8
-                  addresses:
-                    - "10.0.8.30/24"
+      apiVersion: v1alpha1
+      kind: HostnameConfig
+      hostname: foxtrot
+      auto: off
+  - name: vlan
+    inline:
+      apiVersion: v1alpha1
+      kind: VLANConfig
+      name: eno1.8
+      vlanID: 8
+      parent: eno1
+      addresses:
+        - address: 10.0.8.5/24

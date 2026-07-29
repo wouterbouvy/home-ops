@@ -1,16 +1,17 @@
-machine:
-  network:
-    interfaces:
-      - interface: enp1s0f0np0
-        dhcp: false
-        vlans:
-          - vlanId: 8
-            routes:
-              - network: 0.0.0.0/0
-                gateway: 10.0.8.254
-      - interface: enp1s0f1np1
-        ignore: true
-      - interface: eno1
-        ignore: true
-    nameservers:
-    - 10.0.8.254
+apiVersion: v1alpha1
+kind: LinkConfig
+name: eno1
+up: true
+---
+apiVersion: v1alpha1
+kind: VLANConfig
+name: eno1.8
+vlanID: 8
+parent: eno1
+routes:
+  - gateway: 10.0.8.254
+---
+apiVersion: v1alpha1
+kind: ResolverConfig
+nameservers:
+  - address: 10.0.8.254

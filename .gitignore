@@ -28,3 +28,5 @@ talosconfig
 # /config.yaml
 #temp
 /temp
+# Omni bootstrap: always render fresh via `mise run manifests-render`
+/kubernetes/bootstrap/talos/manifests/*.yaml
