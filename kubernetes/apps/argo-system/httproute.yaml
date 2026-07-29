@@ -6,7 +6,7 @@ metadata:
   namespace: argo-system
 spec:
   hostnames:
-  - argocd.k5s.dev # Specify a valid domain to reach your application
+  - argocd.home-ops.nl # Specify a valid domain to reach your application
   parentRefs:
   - name: external
     namespace: kube-system

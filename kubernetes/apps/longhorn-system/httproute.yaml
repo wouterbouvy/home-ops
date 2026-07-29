@@ -6,7 +6,7 @@ metadata:
   namespace: longhorn-system
 spec:
   hostnames:
-  - longhorn.k5s.dev # Specify a valid domain to reach your application
+  - longhorn.home-ops.nl # Specify a valid domain to reach your application
   parentRefs:
   - name: external
     namespace: kube-system
