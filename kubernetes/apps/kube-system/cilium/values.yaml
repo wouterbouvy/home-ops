@@ -1,35 +1,38 @@
 ---
 autoDirectNodeRoutes: true
 bpf:
-  masquerade: false # Required for Talos `.machine.features.hostDNS.forwardKubeDNSToHost`
-  # datapathMode: netkit
+  masquerade: true
+  # Ref: https://github.com/siderolabs/talos/issues/10002
+  hostLegacyRouting: true
 cgroup:
   automount:
     enabled: false
   hostRoot: /sys/fs/cgroup
 cluster:
   id: 1
-  name: "home-ops"
+  name: home-ops
 cni:
   exclusive: false
-# NOTE: devices might need to be set if you have more than one active NIC on your hosts
-# devices: enp1s0 # Deprecated?
+# Node traffic lives on VLAN 8 (eno1.8)
+devices: eno1.8+
 endpointRoutes:
   enabled: true
 envoy:
   enabled: false
 gatewayAPI:
   enabled: true
+  enableAlpn: true
+  enableAppProtocol: true
   gatewayClass:
     create: "true"
 hubble:
   enabled: false
 ipam:
   mode: kubernetes
-ipv4NativeRoutingCIDR: "10.69.0.0/16"
+ipv4NativeRoutingCIDR: 10.69.0.0/16
 k8sClientRateLimit:
-  burst: 40 # Important value when many services run on a Kubernetes cluster. Check out the documentation https://docs.cilium.io/en/v1.17/network/l2-announcements/#sizing-client-rate-limit
-  qps: 20 # Important value when many services run on a Kubernetes cluster. Check out the documentation https://docs.cilium.io/en/v1.17/network/l2-announcements/#sizing-client-rate-limit
+  burst: 40
+  qps: 20
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
 kubeProxyReplacement: true
@@ -39,7 +42,8 @@ l2announcements:
 loadBalancer:
   algorithm: maglev
   mode: snat
-localRedirectPolicy: true
+localRedirectPolicies:
+  enabled: true
 operator:
   replicas: 1
   rollOutPods: true
@@ -55,6 +59,8 @@ securityContext:
       - IPC_LOCK
       - SYS_ADMIN
       - SYS_RESOURCE
+      - PERFMON
+      - BPF
       - DAC_OVERRIDE
       - FOWNER
       - SETGID
@@ -63,3 +69,5 @@ securityContext:
       - NET_ADMIN
       - SYS_ADMIN
       - SYS_RESOURCE
+socketLB:
+  enabled: true
