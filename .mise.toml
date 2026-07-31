@@ -1,8 +1,13 @@
+redactions = ["OMNI_SERVICE_ACCOUNT_KEY"]
+
 [env]
-OMNICONFIG = "{{config_root}}/omniconfig"
+# Omni: Cursor service account via 1Password (scripts/omni-sa-env.sh). Do not set
+# OMNICONFIG alongside OMNI_ENDPOINT / OMNI_SERVICE_ACCOUNT_KEY — they conflict.
+OMNICONFIG = false
 KUBECONFIG = "{{config_root}}/kubeconfig"
 TALOSCONFIG = "{{config_root}}/talosconfig"
 _.file = "{{config_root}}/kubernetes/versions.env"
+_.source = { path = "{{config_root}}/scripts/omni-sa-env.sh", tools = true }
 
 [vars]
 cluster = 'default'
