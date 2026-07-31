@@ -21,7 +21,7 @@ spec:
           - $repo/kubernetes/apps/monitoring/kube-prometheus-stack/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
       path: kubernetes/apps/monitoring
-      targetRevision: cursor/p2-observability-netpol
+      targetRevision: main
       ref: repo
   syncPolicy:
     automated:

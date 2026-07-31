@@ -20,7 +20,7 @@ spec:
         valueFiles:
           - $repo/kubernetes/apps/monitoring/alloy/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
-      targetRevision: cursor/p2-observability-netpol
+      targetRevision: main
       ref: repo
   syncPolicy:
     automated:

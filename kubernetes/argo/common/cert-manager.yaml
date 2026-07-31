@@ -17,7 +17,7 @@ spec:
         valueFiles:
           - $repo/kubernetes/apps/cert-manager/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
-      targetRevision: cursor/p2-observability-netpol
+      targetRevision: main
       ref: repo
   destination:
     name: in-cluster
