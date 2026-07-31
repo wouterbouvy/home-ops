@@ -107,21 +107,6 @@ Point Cloudflare DNS for `*.home-ops.nl` at `10.0.8.120`. Only the Gateway **htt
 
 ## SecureBoot / TPM
 
-Talos TPM disk encryption needs a **SecureBoot UKI** (`/.extra/tpm2-pcr-public-key.pem`). Non-SecureBoot images cannot enroll TPM LUKS keys.
+home-ops runs **SecureBoot UKIs** with **TPM LUKS** on STATE, EPHEMERAL, and `u-longhorn` (`tpm.options.pcrs: []` = PCR 11 only). Omni picks the SecureBoot installer from machine `secureBoot: true` — there is no template flag.
 
-| Item | Value |
-|------|--------|
-| Omni media preset | `home-ops-sb-1.13.7` (SecureBoot, Talos **v1.13.7**, same extensions as [`omni-home-ops.yaml`](kubernetes/bootstrap/talos/omni-home-ops.yaml)) |
-| Image Factory schematic | `8b2c893977a01cb1fe2aa938ed38c989c89f51c4db5102d149b55550d12a2372` |
-| ISO (preferred) | `omnictl media download home-ops-sb-1.13.7 --format iso --talos-version v1.13.7 --output secureboot-media/` |
-| Install disk (template) | `/dev/sda` on each Machine in [`omni-home-ops.yaml`](kubernetes/bootstrap/talos/omni-home-ops.yaml) |
-
-Signing keys stay in Omni / Image Factory — do not commit private SecureBoot/PCR keys. Downloaded ISOs live under `secureboot-media/` (gitignored).
-
-**Prerequisites (firmware, per node):** TPM 2.0 on; clear/reset SecureBoot keys so UEFI is in **Setup Mode**; boot from USB written with the SecureBoot ISO. On bare metal, enroll keys from the ISO boot menu (`Enroll Secure Boot keys: auto`) — auto-enroll is VM-only by default.
-
-**Fresh SecureBoot install:** tear down with `mise run omni-reset`, boot all nodes from the SecureBoot ISO (maintenance + `secureBoot: true`), then `mise run omni-sync`. Omni selects `metal-installer-secureboot` from the machine security state — there is no template `secureboot:` flag. STATE, EPHEMERAL, and `u-longhorn` encrypt with **TPM** at install.
-
-**Cutover order:** SecureBoot ISO → `omni-sync` with TPM LUKS on STATE / EPHEMERAL / `u-longhorn`. Full steps: [`kubernetes/bootstrap/talos/SECUREBOOT-TPM.md`](kubernetes/bootstrap/talos/SECUREBOOT-TPM.md).
-
-**Ongoing:** Talos upgrades must use SecureBoot installer/UKI assets for the same schematic. Firmware dbx changes can break PCR 7 unlock — then set `tpm.options.pcrs: []` (PCR 11 only). Lost SecureBoot keys → TPM volumes will not unlock; recovery is wipe + re-encrypt.
+Ops reference (media preset, upgrades, re-provision, recovery): [`kubernetes/bootstrap/talos/SECUREBOOT-TPM.md`](kubernetes/bootstrap/talos/SECUREBOOT-TPM.md).
