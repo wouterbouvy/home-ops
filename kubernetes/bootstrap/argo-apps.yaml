@@ -9,7 +9,7 @@ spec:
   source:
     repoURL: "https://github.com/wouterbouvy/home-ops.git"
     path: kubernetes/argo/clusters/home-ops
-    targetRevision: main
+    targetRevision: cursor/p2-observability-netpol
   destination:
     name: in-cluster
     namespace: argo-system

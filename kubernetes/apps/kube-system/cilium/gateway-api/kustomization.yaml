@@ -4,3 +4,4 @@ resources:
 - ./certificate.yaml
 - ./external-gateway.yaml
 - ./internal-gateway.yaml
+- ./httproute-hubble.yaml

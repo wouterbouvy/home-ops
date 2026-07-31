@@ -87,7 +87,7 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 | Public domain | `home-ops.nl` |
 | External Gateway VIP | `10.0.8.120` |
 | Internal Gateway VIP | `10.0.8.110` |
-| Example hosts | `argocd.home-ops.nl`, `longhorn.home-ops.nl` |
+| Example hosts | `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl` |
 
 **TLS uses Let's Encrypt staging on purpose** while the lab is under active change:
 
@@ -96,7 +96,9 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 - Browsers will show a trust warning (staging CA). That is expected.
 - Production issuer stays commented until a deliberate cutover.
 
-Point Cloudflare DNS for `*.home-ops.nl` at `10.0.8.120`. Only the Gateway **https** listener accepts routes from all namespaces.
+Point Cloudflare DNS for `*.home-ops.nl` at `10.0.8.120`.
+
+**Gateway exposure:** the external Gateway `http` listener only allows routes from `kube-system` (`from: Same`) — use it for redirects/challenges in that namespace only. The **https** listener allows routes from **all** namespaces (`from: All`) and is the public entry for apps (`argocd`, `longhorn`, `grafana`, …). Prefer HTTPS HTTPRoutes for user-facing UIs.
 
 ### Cert bootstrap order
 
@@ -110,3 +112,28 @@ Point Cloudflare DNS for `*.home-ops.nl` at `10.0.8.120`. Only the Gateway **htt
 home-ops runs **SecureBoot UKIs** with **TPM LUKS** on STATE, EPHEMERAL, and `u-longhorn` (`tpm.options.pcrs: []` = PCR 11 only). Omni picks the SecureBoot installer from machine `secureBoot: true` — there is no template flag.
 
 Ops reference (media preset, upgrades, re-provision, recovery): [`kubernetes/bootstrap/talos/SECUREBOOT-TPM.md`](kubernetes/bootstrap/talos/SECUREBOOT-TPM.md).
+
+## Observability
+
+home-ops runs a light metrics + logs + Hubble stack (home-ops only, under `argo/clusters/home-ops`):
+
+| Piece | Notes |
+|-------|--------|
+| metrics-server | `kubectl top`; Talos needs `--kubelet-insecure-tls` |
+| kube-prometheus-stack | Prometheus + Grafana + Alertmanager; **7d** retention; PVC on Longhorn |
+| Loki + Alloy | Pod logs → Loki (14d retention in Loki limits); Grafana datasource via sidecar ConfigMap |
+| Hubble | Cilium flows + metrics + UI |
+
+| UI | URL |
+|----|-----|
+| Grafana | https://grafana.home-ops.nl |
+| Hubble UI | https://hubble.home-ops.nl |
+
+Grafana admin password: `kubectl -n monitoring get secret kube-prometheus-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d`.
+
+To scrape a new app, add a `ServiceMonitor`/`PodMonitor` in the app namespace (or under [`kubernetes/apps/monitoring/`](kubernetes/apps/monitoring/)); Prometheus is configured with empty selectors so it picks up cluster-wide monitors. Spegel ServiceMonitor is enabled in chart values (needs Prometheus Operator CRDs — Spegel Application uses `SkipDryRunOnMissingResource`).
+
+Talos etcd / controller-manager / scheduler / kube-proxy scrapes are **disabled** in kube-prometheus-stack values (not reachable like kubeadm).
+
+**Production TLS** for `home-ops.nl` remains deferred (staging LE on purpose; see Ingress and TLS above).
+

@@ -18,7 +18,7 @@ spec:
           - $repo/kubernetes/apps/kube-system/coredns/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
       path: kubernetes/apps/kube-system/coredns
-      targetRevision: main
+      targetRevision: cursor/p2-observability-netpol
       ref: repo
   destination:
     name: in-cluster
@@ -34,4 +34,5 @@ spec:
       - ServerSideApply=true
       - PruneLast=true
       - RespectIgnoreDifferences=true
+      - SkipDryRunOnMissingResource=true
 

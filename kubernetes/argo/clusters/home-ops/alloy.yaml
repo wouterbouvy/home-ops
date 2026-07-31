@@ -2,26 +2,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager
+  name: alloy
   namespace: argo-system
   annotations:
-    argocd.argoproj.io/sync-wave: '-1'
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   project: default
+  destination:
+    name: in-cluster
+    namespace: monitoring
   sources:
-    - repoURL: https://charts.jetstack.io
-      chart: cert-manager
-      targetRevision: v1.21.1
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: alloy
+      targetRevision: 1.11.0
       helm:
-        releaseName: cert-manager
+        releaseName: alloy
         valueFiles:
-          - $repo/kubernetes/apps/cert-manager/values.yaml
+          - $repo/kubernetes/apps/monitoring/alloy/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
       targetRevision: cursor/p2-observability-netpol
       ref: repo
-  destination:
-    name: in-cluster
-    namespace: cert-manager
   syncPolicy:
     automated:
       allowEmpty: true
@@ -33,3 +33,4 @@ spec:
       - ServerSideApply=true
       - PruneLast=true
       - RespectIgnoreDifferences=true
+      - SkipDryRunOnMissingResource=true
