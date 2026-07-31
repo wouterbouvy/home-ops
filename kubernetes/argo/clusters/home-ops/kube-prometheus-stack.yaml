@@ -35,3 +35,15 @@ spec:
       - PruneLast=true
       - RespectIgnoreDifferences=true
       - SkipDryRunOnMissingResource=true
+  ignoreDifferences:
+    # Chart generates a random admin password into this Secret on first install.
+    - group: ""
+      kind: Secret
+      name: kube-prometheus-stack-grafana
+      jsonPointers:
+        - /data
+    - group: apps
+      kind: Deployment
+      name: kube-prometheus-stack-grafana
+      jqPathExpressions:
+        - .spec.template.metadata.annotations

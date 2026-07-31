@@ -1,5 +1,4 @@
 ---
-# Allow DNS, API server, and HTTPS to 1Password API.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -11,13 +10,7 @@ spec:
     - Ingress
     - Egress
   ingress:
-    - from:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: monitoring
-      ports:
-        - protocol: TCP
-          port: 8080
+    - {}
   egress:
     - to:
         - namespaceSelector:
