@@ -2,5 +2,49 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
+  ],
+  "argocd": {
+    "managerFilePatterns": [
+      "/kubernetes/argo/apps/.+\\.ya?ml$/"
+    ]
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/kubernetes/versions\\.env$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>.+?)(?: registryUrl=(?<registryUrl>\\S+))?\\n[A-Z0-9_]+=(?<currentValue>.+)"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Group Cilium chart bumps across versions.env and Argo Application",
+      "matchDatasources": ["helm"],
+      "matchPackageNames": ["cilium"],
+      "groupName": "cilium chart"
+    },
+    {
+      "description": "Group CoreDNS OCI chart bumps",
+      "matchPackageNames": ["ghcr.io/coredns/charts/coredns", "coredns"],
+      "groupName": "coredns chart"
+    },
+    {
+      "description": "Group Spegel OCI chart bumps",
+      "matchPackageNames": ["ghcr.io/spegel-org/helm-charts/spegel", "spegel"],
+      "groupName": "spegel chart"
+    },
+    {
+      "description": "Group Argo CD chart bumps",
+      "matchPackageNames": ["ghcr.io/argoproj/argo-helm/argo-cd", "argo-cd"],
+      "groupName": "argo-cd chart"
+    },
+    {
+      "description": "Group Gateway API CRD bumps",
+      "matchPackageNames": ["kubernetes-sigs/gateway-api"],
+      "groupName": "gateway-api"
+    }
   ]
 }

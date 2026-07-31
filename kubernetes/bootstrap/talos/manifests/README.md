@@ -7,13 +7,15 @@ Kustomize, or remote URLs.
 Generated YAML in this directory is **gitignored**. Always render locally before
 sync (`omni-sync` runs `manifests-render` automatically).
 
+Versions come from [`kubernetes/versions.env`](../../../versions.env).
+
 | File | Purpose |
 | --- | --- |
-| `gateway-api.yaml` | Gateway API standard CRDs v1.6.1 (TLSRoute/TCPRoute/UDPRoute at v1) |
-| `cilium.yaml` | Cilium 1.20.0 rendered from Helm |
-| `coredns.yaml` | CoreDNS 1.46.2 rendered from Helm |
-| `spegel.yaml` | Spegel 0.7.4 rendered from Helm |
-| `argo-cd.yaml` | Argo CD 10.2.1 rendered from Helm (includes `argo-system` Namespace + CRDs) |
+| `gateway-api.yaml` | Gateway API standard CRDs |
+| `cilium.yaml` | Cilium rendered from Helm |
+| `coredns.yaml` | CoreDNS rendered from Helm |
+| `spegel.yaml` | Spegel rendered from Helm |
+| `argo-cd.yaml` | Argo CD rendered from Helm (includes `argo-system` Namespace + CRDs) |
 
 All chart manifests use `mode: one-time` so Argo can take over after bootstrap.
 
@@ -25,16 +27,15 @@ mise run manifests-render
 
 Sources of truth:
 
-| Manifest | Values | Chart / release version (in mise task) |
+| Manifest | Values | Version pin |
 | --- | --- | --- |
-| `gateway-api.yaml` | GitHub release URL | v1.6.1 standard-install |
-| `cilium.yaml` | `kubernetes/apps/kube-system/cilium/values.yaml` | 1.20.0 |
-| `coredns.yaml` | `kubernetes/apps/kube-system/coredns/values.yaml` | 1.46.2 |
-| `spegel.yaml` | `kubernetes/apps/kube-system/spegel/values.yaml` | 0.7.4 |
-| `argo-cd.yaml` | `kubernetes/apps/argo-system/values.yaml` | 10.2.1 |
+| `gateway-api.yaml` | GitHub release URL | `GATEWAY_API_VERSION` |
+| `cilium.yaml` | `kubernetes/apps/kube-system/cilium/values.yaml` | `CILIUM_CHART_VERSION` |
+| `coredns.yaml` | `kubernetes/apps/kube-system/coredns/values.yaml` | `COREDNS_CHART_VERSION` |
+| `spegel.yaml` | `kubernetes/apps/kube-system/spegel/values.yaml` | `SPEGEL_CHART_VERSION` |
+| `argo-cd.yaml` | `kubernetes/apps/argo-system/values.yaml` | `ARGOCD_CHART_VERSION` |
 
-Keep versions aligned with the corresponding Argo Applications and
-`kubernetes/system/gateway-api/kustomization.yaml`. Bootstrap Argo uses
+Keep pins aligned with the corresponding Argo Applications. Bootstrap Argo uses
 `values.yaml` only; HA values are applied later by the Argo CD Application.
 
 ## Verify after sync

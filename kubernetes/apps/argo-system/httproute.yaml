@@ -6,17 +6,15 @@ metadata:
   namespace: argo-system
 spec:
   hostnames:
-  - argocd.home-ops.nl # Specify a valid domain to reach your application
+  - argocd.home-ops.nl
   parentRefs:
   - name: external
     namespace: kube-system
   rules:
   - backendRefs:
-    - name: argocd-server # Specify the service of the application
+    - name: argocd-server
       port: 80
     matches:
     - path:
         type: PathPrefix
         value: /
-status:
-  parents: []

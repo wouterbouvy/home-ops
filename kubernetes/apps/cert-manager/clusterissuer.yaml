@@ -1,5 +1,8 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/clusterissuer_v1.json
+# Intentional: Let's Encrypt staging for home-ops.nl while the lab is under active
+# change (browsers warn; avoids HSTS friction). Production issuer stays commented
+# until a deliberate cutover — see root README.
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
