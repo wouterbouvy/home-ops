@@ -78,6 +78,11 @@ localRedirectPolicies:
 operator:
   replicas: 1
   rollOutPods: true
+# ServiceMonitors are created before Prometheus Operator CRDs exist at bootstrap
+# helm template time; trustCRDsExist skips the chart Capabilities check.
+prometheus:
+  serviceMonitor:
+    trustCRDsExist: true
 rollOutCiliumPods: true
 routingMode: native
 securityContext:
