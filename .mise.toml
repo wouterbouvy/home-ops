@@ -13,13 +13,14 @@ kube_context_mgmt = 'management'
 [tools]
 "aqua:siderolabs/talos" = "1.13.7"
 "aqua:siderolabs/omni/omnictl" = "1.9.3"
-"aqua:kubernetes/kubectl" = "1.36.2"
+# Keep kubectl + kubelogin on the cluster Kubernetes version (kubernetes/versions.env).
+"aqua:kubernetes/kubectl" = "{{env.KUBERNETES_VERSION}}"
 "aqua:helm/helm" = "3.18.6"
 "aqua:cilium/cilium-cli" = "0.19.7"
 "aqua:jqlang/jq" = "1.8.2"
 "aqua:1password/cli" = "v2.35.0"
 "aqua:kubevirt/kubevirt/virtctl" = "v1.8.4"
-"aqua:int128/kubelogin" = "1.36.2"
+"aqua:int128/kubelogin" = "{{env.KUBERNETES_VERSION}}"
 "aqua:yannh/kubeconform" = "0.6.7"
 
 [tasks.manifests-render]

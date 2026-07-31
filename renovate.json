@@ -16,7 +16,7 @@
         "/kubernetes/versions\\.env$/"
       ],
       "matchStrings": [
-        "# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>.+?)(?: registryUrl=(?<registryUrl>\\S+))?\\n[A-Z0-9_]+=(?<currentValue>.+)"
+        "# renovate: datasource=(?<datasource>[a-z-]+?) depName=(?<depName>.+?)(?: registryUrl=(?<registryUrl>\\S+))?(?: extractVersion=(?<extractVersion>\\S+))?\\n[A-Z0-9_]+=(?<currentValue>.+)"
       ]
     }
   ],
@@ -46,6 +46,22 @@
       "description": "Group Gateway API CRD bumps",
       "matchPackageNames": ["kubernetes-sigs/gateway-api"],
       "groupName": "gateway-api"
+    },
+    {
+      "description": "Pin kubectl + kubelogin to KUBERNETES_VERSION in versions.env (not independent mise bumps)",
+      "matchManagers": ["mise"],
+      "matchPackageNames": [
+        "aqua:kubernetes/kubectl",
+        "kubernetes/kubectl",
+        "aqua:int128/kubelogin",
+        "int128/kubelogin"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Cluster Kubernetes client pin (kubectl + kubelogin via mise env)",
+      "matchPackageNames": ["kubernetes/kubernetes"],
+      "groupName": "kubernetes"
     }
   ]
 }
