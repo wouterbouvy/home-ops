@@ -26,7 +26,38 @@ gatewayAPI:
   gatewayClass:
     create: "true"
 hubble:
-  enabled: false
+  enabled: true
+  metrics:
+    enableOpenMetrics: true
+    enabled:
+      - dns
+      - drop
+      - tcp
+      - flow
+      - port-distribution
+      - icmp
+  relay:
+    enabled: true
+    prometheus:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+  ui:
+    enabled: true
+    backend:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+    frontend:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
 ipam:
   mode: kubernetes
 ipv4NativeRoutingCIDR: 10.69.0.0/16
@@ -47,6 +78,11 @@ localRedirectPolicies:
 operator:
   replicas: 1
   rollOutPods: true
+# ServiceMonitors are created before Prometheus Operator CRDs exist at bootstrap
+# helm template time; trustCRDsExist skips the chart Capabilities check.
+prometheus:
+  serviceMonitor:
+    trustCRDsExist: true
 rollOutCiliumPods: true
 routingMode: native
 securityContext:

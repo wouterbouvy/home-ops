@@ -1,0 +1,13 @@
+# Talos: kubelet serves HTTPS with cluster CA not always trusted by metrics-server.
+args:
+  - --kubelet-insecure-tls
+  - --kubelet-preferred-address-types=InternalIP,Hostname
+metrics:
+  enabled: false
+replicas: 1
+resources:
+  requests:
+    cpu: 20m
+    memory: 64Mi
+  limits:
+    memory: 128Mi

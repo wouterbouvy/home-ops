@@ -1,0 +1,18 @@
+---
+# Intentionally permissive: Talos kube-apiserver is hostNetwork, so ClusterIP
+# (10.96.0.1:443) egress and webhook ingress do not match pod/namespace selectors.
+# Tighten later with CiliumNetworkPolicy / host entitlements if needed.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: cert-manager
+  namespace: cert-manager
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - {}
+  egress:
+    - {}

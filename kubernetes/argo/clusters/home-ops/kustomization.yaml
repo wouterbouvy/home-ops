@@ -3,3 +3,7 @@ kind: Kustomization
 resources:
   - ../../common
   - longhorn.yaml
+  - metrics-server.yaml
+  - kube-prometheus-stack.yaml
+  - loki.yaml
+  - alloy.yaml

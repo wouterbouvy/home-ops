@@ -2,27 +2,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: spegel
+  name: loki
   namespace: argo-system
   annotations:
-    argocd.argoproj.io/sync-wave: '-2'
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   project: default
-  sources:
-    - repoURL: ghcr.io/spegel-org/helm-charts
-      chart: spegel
-      targetRevision: 0.7.4
-      helm:
-        releaseName: spegel
-        valueFiles:
-          - $repo/kubernetes/apps/kube-system/spegel/values.yaml
-    - repoURL: "https://github.com/wouterbouvy/home-ops.git"
-      path: kubernetes/apps/kube-system/spegel
-      targetRevision: main
-      ref: repo
   destination:
     name: in-cluster
-    namespace: kube-system
+    namespace: monitoring
+  sources:
+    - repoURL: https://grafana.github.io/helm-charts
+      chart: loki
+      targetRevision: 6.55.0
+      helm:
+        releaseName: loki
+        valueFiles:
+          - $repo/kubernetes/apps/monitoring/loki/values.yaml
+    - repoURL: "https://github.com/wouterbouvy/home-ops.git"
+      targetRevision: main
+      ref: repo
   syncPolicy:
     automated:
       allowEmpty: true
@@ -34,5 +33,3 @@ spec:
       - ServerSideApply=true
       - PruneLast=true
       - RespectIgnoreDifferences=true
-      - SkipDryRunOnMissingResource=true
-

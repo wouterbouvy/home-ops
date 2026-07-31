@@ -1,0 +1,119 @@
+# Home-ops sized kube-prometheus-stack: single replicas, 7d retention, Longhorn PVC.
+# Talos: disable scrapes for host control-plane components that are not reachable like kubeadm.
+
+crds:
+  enabled: true
+
+defaultRules:
+  create: true
+  rules:
+    etcd: false
+    kubeSchedulerAlerting: false
+    kubeSchedulerRecording: false
+    kubeControllerManager: false
+    kubeProxy: false
+
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 10m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
+
+grafana:
+  enabled: true
+  replicas: 1
+  admin:
+    existingSecret: ""
+  # Password is stored in Secret grafana-admin (chart-generated) until rotated via 1Password.
+  grafana.ini:
+    server:
+      root_url: https://grafana.home-ops.nl
+      domain: grafana.home-ops.nl
+  ingress:
+    enabled: false
+  serviceMonitor:
+    enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
+    datasources:
+      enabled: true
+
+kubernetesServiceMonitors:
+  enabled: true
+
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+
+kubeApiServer:
+  enabled: true
+
+kubelet:
+  enabled: true
+  serviceMonitor:
+    https: true
+    insecureSkipVerify: true
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi
+
+prometheus:
+  prometheusSpec:
+    replicas: 1
+    retention: 7d
+    scrapeInterval: 60s
+    evaluationInterval: 60s
+    # Scrape ServiceMonitors/PodMonitors cluster-wide (Spegel, Cilium, Argo, …).
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 1536Mi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 20Gi
+    additionalScrapeConfigs: []
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
