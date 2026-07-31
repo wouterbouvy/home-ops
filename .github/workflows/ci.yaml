@@ -55,6 +55,9 @@ jobs:
         with:
           cache: true
 
+      - name: Render Omni bootstrap manifests
+        run: mise run manifests-render
+
       - name: Validate Omni cluster templates
         working-directory: kubernetes/bootstrap/talos
         run: |
