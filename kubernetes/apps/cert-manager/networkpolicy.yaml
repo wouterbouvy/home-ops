@@ -1,6 +1,7 @@
 ---
-# Allow admission webhook traffic from the API server (often hostNetwork on Talos)
-# and metrics scrapes; keep egress limited to DNS, API, and HTTPS.
+# Intentionally permissive: Talos kube-apiserver is hostNetwork, so ClusterIP
+# (10.96.0.1:443) egress and webhook ingress do not match pod/namespace selectors.
+# Tighten later with CiliumNetworkPolicy / host entitlements if needed.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -12,27 +13,6 @@ spec:
     - Ingress
     - Egress
   ingress:
-    # Host-network apiserver / nodes do not carry namespace labels — allow all ingress.
     - {}
   egress:
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-    - to:
-        - namespaceSelector: {}
-      ports:
-        - protocol: TCP
-          port: 443
-        - protocol: TCP
-          port: 6443
-    - ports:
-        - protocol: TCP
-          port: 443
-        - protocol: TCP
-          port: 80
+    - {}

@@ -1,4 +1,5 @@
 ---
+# Intentionally permissive — same Talos hostNetwork/API caveat as cert-manager.
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -12,22 +13,4 @@ spec:
   ingress:
     - {}
   egress:
-    - to:
-        - namespaceSelector:
-            matchLabels:
-              kubernetes.io/metadata.name: kube-system
-      ports:
-        - protocol: UDP
-          port: 53
-        - protocol: TCP
-          port: 53
-    - to:
-        - namespaceSelector: {}
-      ports:
-        - protocol: TCP
-          port: 443
-        - protocol: TCP
-          port: 6443
-    - ports:
-        - protocol: TCP
-          port: 443
+    - {}
