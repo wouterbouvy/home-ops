@@ -8,6 +8,7 @@ provisioning:
 encryption:
   provider: luks2
   keys:
-    - nodeID: {}
+    - tpm:
+        options:
+          pcrs: []
       slot: 0
-      lockToState: true

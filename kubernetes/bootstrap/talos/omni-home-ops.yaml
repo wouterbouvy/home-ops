@@ -52,8 +52,13 @@ patches:
 kind: Workers
 machines:
 ---
+# install.disk: SATA system SSD (INTEL SSDSC2BB30). NVMe is reserved for u-longhorn.
+# SecureBoot installer is selected automatically when the machine reports secureBoot: true
+# (boot SecureBoot ISO into maintenance before mise run omni-sync).
 kind: Machine
 name: 5ea7c280-c43a-11e8-989b-7a47211d0c00 # Delta
+install:
+  disk: /dev/sda
 patches:
   - name: hostname
     inline:
@@ -73,6 +78,8 @@ patches:
 ---
 kind: Machine
 name: 3f1eae80-fa16-11e8-b2a5-75afac5e1000 # Echo
+install:
+  disk: /dev/sda
 patches:
   - name: hostname
     inline:
@@ -92,6 +99,8 @@ patches:
 ---
 kind: Machine
 name: 40210000-2edf-11e9-8a32-485d16011400 # Foxtrot
+install:
+  disk: /dev/sda
 patches:
   - name: hostname
     inline:

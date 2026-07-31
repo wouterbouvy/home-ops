@@ -4,7 +4,11 @@ name: STATE
 encryption:
   provider: luks2
   keys:
-    - nodeID: {}
+    # PCR 11 only (signed SecureBoot UKI policy). Empty pcrs skips PCR 7, which
+    # often mismatches across install vs reboot on OEM firmware (TPM_RC_BAD_AUTH).
+    - tpm:
+        options:
+          pcrs: []
       slot: 0
 ---
 apiVersion: v1alpha1
@@ -13,6 +17,7 @@ name: EPHEMERAL
 encryption:
   provider: luks2
   keys:
-    - nodeID: {}
+    - tpm:
+        options:
+          pcrs: []
       slot: 0
-      lockToState: true
