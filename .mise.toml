@@ -1,8 +1,13 @@
+redactions = ["OMNI_SERVICE_ACCOUNT_KEY"]
+
 [env]
-OMNICONFIG = "{{config_root}}/omniconfig"
+# Omni: Cursor service account via 1Password (scripts/omni-sa-env.sh). Do not set
+# OMNICONFIG alongside OMNI_ENDPOINT / OMNI_SERVICE_ACCOUNT_KEY — they conflict.
+OMNICONFIG = false
 KUBECONFIG = "{{config_root}}/kubeconfig"
 TALOSCONFIG = "{{config_root}}/talosconfig"
 _.file = "{{config_root}}/kubernetes/versions.env"
+_.source = { path = "{{config_root}}/scripts/omni-sa-env.sh", tools = true }
 
 [vars]
 cluster = 'default'
@@ -112,9 +117,11 @@ run = "omnictl cluster template delete -f omni-mgmt.yaml"
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-wipedisks]
-description = "Wipe Longhorn NVMe disks on home-ops nodes (maintenance --insecure; set NODE_IPS)"
+description = "Wipe Longhorn-related disks on home-ops nodes"
 run = [
-    "bash -c 'for n in ${NODE_IPS:-10.0.99.162 10.0.99.167 10.0.99.172}; do echo Wiping nvme0n1 on $n; talosctl -n \"$n\" wipe disk nvme0n1 --insecure --drop-partition || true; done'",
+    "talosctl -n 10.0.8.3 wipe disk sda --drop-partition",
+    "talosctl -n 10.0.8.4 wipe disk sda --drop-partition",
+    "talosctl -n 10.0.8.5 wipe disk sda --drop-partition",
 ]
 
 [tasks.omni-reboot]
