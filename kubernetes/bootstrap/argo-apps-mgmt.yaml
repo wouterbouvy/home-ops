@@ -8,7 +8,7 @@ spec:
   project: default
   source:
     repoURL: "https://github.com/wouterbouvy/home-ops.git"
-    path: kubernetes/argo/clusters/home-ops
+    path: kubernetes/argo/clusters/mgmt
     targetRevision: main
   destination:
     name: in-cluster

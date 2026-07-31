@@ -1,0 +1,63 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  kubeconform:
+    name: kubeconform
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+        with:
+          cache: true
+
+      - name: Validate manifests
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(
+            find kubernetes/apps kubernetes/argo \
+              kubernetes/bootstrap/argo-apps.yaml \
+              kubernetes/bootstrap/argo-apps-mgmt.yaml \
+              -type f \( -name '*.yaml' -o -name '*.yml' \) \
+              ! -name 'values.yaml' \
+              ! -name 'ha-values.yaml' \
+              ! -name 'kustomization.yaml' \
+              | sort
+          )
+          kubectl kustomize kubernetes/argo/clusters/home-ops > /tmp/argo-home-ops.yaml
+          kubectl kustomize kubernetes/argo/clusters/mgmt > /tmp/argo-mgmt.yaml
+
+          kubeconform \
+            -summary \
+            -strict \
+            -ignore-missing-schemas \
+            -kubernetes-version 1.36.0 \
+            "${files[@]}" \
+            /tmp/argo-home-ops.yaml \
+            /tmp/argo-mgmt.yaml
+
+  omni-validate:
+    name: omni-validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+        with:
+          cache: true
+
+      - name: Validate Omni cluster templates
+        working-directory: kubernetes/bootstrap/talos
+        run: |
+          set -euo pipefail
+          omnictl cluster template validate -f omni-home-ops.yaml
+          omnictl cluster template validate -f omni-mgmt.yaml

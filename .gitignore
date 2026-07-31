@@ -1,31 +1,12 @@
 # Trash
 .DS_Store
 Thumbs.db
-# k8s
+# k8s / Omni local credentials
 kubeconfig
 talosconfig
+omniconfig
 1password-token
-# omniconfig
-# .decrypted~*.yaml
-# .config.env
-# *.agekey
-# *.pub
-# *.key
-# # Private
-# .private
-# .bin
-# # Ansible
-# .venv*
-# # Taskfile
-# .task
-# # Brew
-# Brewfile.lock.json
-# # intellij
-# .idea
-# # wiki
-# wiki
-# # Bootstrap
-# /config.yaml
+HWIDs.md
 #temp
 /temp
 # Omni bootstrap: always render fresh via `mise run manifests-render`

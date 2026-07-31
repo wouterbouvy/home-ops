@@ -1,7 +1,0 @@
-contexts:
-    default:
-        url: https://omni.k5s.dev
-        auth:
-            siderov1:
-                identity: wouter@wouter.nu
-context: default

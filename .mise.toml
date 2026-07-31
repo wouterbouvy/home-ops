@@ -6,6 +6,9 @@ _.file = "{{config_root}}/kubernetes/versions.env"
 
 [vars]
 cluster = 'default'
+# Stable kubectl context names written by omni-*-sync (home-ops is default).
+kube_context_home_ops = 'home-ops'
+kube_context_mgmt = 'management'
 
 [tools]
 "aqua:siderolabs/talos" = "1.13.7"
@@ -17,6 +20,7 @@ cluster = 'default'
 "aqua:1password/cli" = "v2.35.0"
 "aqua:kubevirt/kubevirt/virtctl" = "v1.8.4"
 "aqua:int128/kubelogin" = "1.36.2"
+"aqua:yannh/kubeconform" = "0.6.7"
 
 [tasks.manifests-render]
 description = "Render Cilium, CoreDNS, Spegel, and Argo CD Helm charts to Omni bootstrap manifests"
@@ -34,30 +38,32 @@ run = [
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-validate]
-description = "Validate Omni configuration"
+description = "Validate home-ops Omni cluster template"
 run = [
     "omnictl cluster template validate -f omni-home-ops.yaml",
 ]
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-sync]
-description = 'Sync cluster'
+description = "Sync home-ops cluster; merge kube/talos contexts and set home-ops as default"
 run = [
     "mise run manifests-render",
     "omnictl cluster template sync -f omni-home-ops.yaml",
-    "omnictl talosconfig --merge=false --force $TALOSCONFIG",
-    "omnictl kubeconfig -c home-ops --merge=false --force $KUBECONFIG"
+    "omnictl talosconfig -c home-ops --merge $TALOSCONFIG",
+    "omnictl kubeconfig -c home-ops --merge --force-context-name {{vars.kube_context_home_ops}} $KUBECONFIG",
+    "kubectl config use-context {{vars.kube_context_home_ops}}",
+    "talosctl config context home-ops",
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["omni-validate"]
 
 [tasks.omni-bootstrap]
-description = 'Bootstrap cluster'
+description = "Bootstrap home-ops cluster (ESO token + root apps Application)"
 run = [
-    "until kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done",
+    "until kubectl --context={{vars.kube_context_home_ops}} wait --for=condition=Ready nodes --all --timeout=600s; do sleep 10; done",
     "mise run omni-1password-bootstrap",
-    "kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops -n argo-system wait --for=condition=available deployment -l app.kubernetes.io/name=argocd-server --timeout=600s",
-    "kubectl --kubeconfig $KUBECONFIG --context=k5s-home-ops-home-ops --namespace argo-system apply --server-side --filename argo-apps.yaml"
+    "kubectl --context={{vars.kube_context_home_ops}} -n argo-system wait --for=condition=available deployment -l app.kubernetes.io/name=argocd-server --timeout=600s",
+    "kubectl --context={{vars.kube_context_home_ops}} --namespace argo-system apply --server-side --filename argo-apps.yaml",
 ]
 depends = ["omni-sync"]
 dir = "kubernetes/bootstrap"
@@ -65,30 +71,55 @@ dir = "kubernetes/bootstrap"
 [tasks.omni-1password-bootstrap]
 description = "Create 1Password token for External Secrets Operator"
 run = [
-    "kubectl get namespace external-secrets || kubectl create namespace external-secrets",
+    "kubectl --context={{vars.kube_context_home_ops}} get namespace external-secrets || kubectl --context={{vars.kube_context_home_ops}} create namespace external-secrets",
     "op read op://k8s-secrets/kjbt5chc4fgrgsian5acx2f74u/credential --out-file 1password-token",
-    "kubectl create secret generic 1password-token -n external-secrets --from-file=token=1password-token --dry-run=client -o yaml | kubectl apply -f -",
+    "kubectl --context={{vars.kube_context_home_ops}} create secret generic 1password-token -n external-secrets --from-file=token=1password-token --dry-run=client -o yaml | kubectl --context={{vars.kube_context_home_ops}} apply -f -",
     "rm 1password-token",
     "op signout",
 ]
 
 [tasks.omni-reset]
-description = 'Reset cluster'
+description = "Reset home-ops cluster template"
 run = "omnictl cluster template delete -f omni-home-ops.yaml"
 dir = "kubernetes/bootstrap/talos"
 
+[tasks.omni-mgmt-validate]
+description = "Validate management Omni cluster template (scaffold; full testing later)"
+run = [
+    "omnictl cluster template validate -f omni-mgmt.yaml",
+]
+dir = "kubernetes/bootstrap/talos"
+
+[tasks.omni-mgmt-sync]
+description = "Sync management cluster; merge contexts into shared kube/talos configs; keep home-ops default"
+run = [
+    "mise run manifests-render",
+    "omnictl cluster template sync -f omni-mgmt.yaml",
+    "omnictl talosconfig -c management --merge $TALOSCONFIG",
+    "omnictl kubeconfig -c management --merge --force-context-name {{vars.kube_context_mgmt}} $KUBECONFIG",
+    "kubectl config use-context {{vars.kube_context_home_ops}}",
+    "talosctl config context home-ops",
+]
+dir = "kubernetes/bootstrap/talos"
+depends = ["omni-mgmt-validate"]
+
+[tasks.omni-mgmt-reset]
+description = "Reset management cluster template"
+run = "omnictl cluster template delete -f omni-mgmt.yaml"
+dir = "kubernetes/bootstrap/talos"
+
 [tasks.omni-wipedisks]
-description = 'Wipe disks'
+description = "Wipe Longhorn-related disks on home-ops nodes"
 run = [
     "talosctl -n 10.0.8.3 wipe disk sda --drop-partition",
     "talosctl -n 10.0.8.4 wipe disk sda --drop-partition",
-    "talosctl -n 10.0.8.5 wipe disk sda --drop-partition"
+    "talosctl -n 10.0.8.5 wipe disk sda --drop-partition",
 ]
 
 [tasks.omni-reboot]
-description = 'Reboot nodes'
+description = "Reboot home-ops nodes"
 run = [
     "talosctl -n 10.0.8.3 reboot",
     "talosctl -n 10.0.8.4 reboot",
-    "talosctl -n 10.0.8.5 reboot"
+    "talosctl -n 10.0.8.5 reboot",
 ]

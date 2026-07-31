@@ -5,7 +5,8 @@
   ],
   "argocd": {
     "managerFilePatterns": [
-      "/kubernetes/argo/apps/.+\\.ya?ml$/"
+      "/kubernetes/argo/common/.+\\.ya?ml$/",
+      "/kubernetes/argo/clusters/.+/.+\\.ya?ml$/"
     ]
   },
   "customManagers": [

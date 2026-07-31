@@ -17,7 +17,6 @@ spec:
         valueFiles:
           - $repo/kubernetes/apps/cert-manager/values.yaml
     - repoURL: "https://github.com/wouterbouvy/home-ops.git"
-      path: kubernetes/apps/cert-manager
       targetRevision: main
       ref: repo
   destination:
