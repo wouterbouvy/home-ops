@@ -2,6 +2,7 @@
 OMNICONFIG = "{{config_root}}/omniconfig"
 KUBECONFIG = "{{config_root}}/kubeconfig"
 TALOSCONFIG = "{{config_root}}/talosconfig"
+_.file = "{{config_root}}/kubernetes/versions.env"
 
 [vars]
 cluster = 'default'
@@ -21,14 +22,14 @@ cluster = 'default'
 description = "Render Cilium, CoreDNS, Spegel, and Argo CD Helm charts to Omni bootstrap manifests"
 run = [
     "mkdir -p manifests",
-    "curl -fsSL -o manifests/gateway-api.yaml https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.6.1/standard-install.yaml",
+    "curl -fsSL -o manifests/gateway-api.yaml \"https://github.com/kubernetes-sigs/gateway-api/releases/download/${GATEWAY_API_VERSION}/standard-install.yaml\"",
     "helm repo add cilium https://helm.cilium.io --force-update",
     "helm repo update cilium",
-    "helm template cilium cilium/cilium --version 1.20.0 --namespace kube-system --values ../../apps/kube-system/cilium/values.yaml > manifests/cilium.yaml",
-    "helm template coredns oci://ghcr.io/coredns/charts/coredns --version 1.46.2 --namespace kube-system --values ../../apps/kube-system/coredns/values.yaml > manifests/coredns.yaml",
-    "helm template spegel oci://ghcr.io/spegel-org/helm-charts/spegel --version 0.7.4 --namespace kube-system --values ../../apps/kube-system/spegel/values.yaml > manifests/spegel.yaml",
+    "helm template cilium cilium/cilium --version \"${CILIUM_CHART_VERSION}\" --namespace kube-system --values ../../apps/kube-system/cilium/values.yaml > manifests/cilium.yaml",
+    "helm template coredns oci://ghcr.io/coredns/charts/coredns --version \"${COREDNS_CHART_VERSION}\" --namespace kube-system --values ../../apps/kube-system/coredns/values.yaml > manifests/coredns.yaml",
+    "helm template spegel oci://ghcr.io/spegel-org/helm-charts/spegel --version \"${SPEGEL_CHART_VERSION}\" --namespace kube-system --values ../../apps/kube-system/spegel/values.yaml > manifests/spegel.yaml",
     """printf '%s\\n' '---' 'apiVersion: v1' 'kind: Namespace' 'metadata:' '  name: argo-system' > manifests/argo-cd.yaml""",
-    "helm template argo-cd oci://ghcr.io/argoproj/argo-helm/argo-cd --version 10.2.1 --namespace argo-system --values ../../apps/argo-system/values.yaml --include-crds >> manifests/argo-cd.yaml",
+    "helm template argo-cd oci://ghcr.io/argoproj/argo-helm/argo-cd --version \"${ARGOCD_CHART_VERSION}\" --namespace argo-system --values ../../apps/argo-system/values.yaml --include-crds >> manifests/argo-cd.yaml",
 ]
 dir = "kubernetes/bootstrap/talos"
 

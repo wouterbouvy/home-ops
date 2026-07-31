@@ -6,18 +6,15 @@ metadata:
   namespace: longhorn-system
 spec:
   hostnames:
-  - longhorn.home-ops.nl # Specify a valid domain to reach your application
+  - longhorn.home-ops.nl
   parentRefs:
   - name: external
     namespace: kube-system
-    # sectionName: https
   rules:
   - backendRefs:
-    - name: longhorn-frontend # Specify the service of the application
+    - name: longhorn-frontend
       port: 80
     matches:
     - path:
         type: PathPrefix
         value: /
-status:
-  parents: []
