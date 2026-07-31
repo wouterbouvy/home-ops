@@ -21,7 +21,7 @@ kube_context_mgmt = 'management'
 "aqua:1password/cli" = "v2.35.0"
 "aqua:kubevirt/kubevirt/virtctl" = "v1.8.4"
 "aqua:int128/kubelogin" = "{{env.KUBERNETES_VERSION}}"
-"aqua:yannh/kubeconform" = "0.6.7"
+"aqua:yannh/kubeconform" = "0.8.0"
 
 [tasks.manifests-render]
 description = "Render Cilium, CoreDNS, Spegel, and Argo CD Helm charts to Omni bootstrap manifests"
