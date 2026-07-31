@@ -52,7 +52,7 @@ run = [
     "omnictl talosconfig -c home-ops --merge $TALOSCONFIG",
     "omnictl kubeconfig -c home-ops --merge --force-context-name {{vars.kube_context_home_ops}} $KUBECONFIG",
     "kubectl config use-context {{vars.kube_context_home_ops}}",
-    "talosctl config context home-ops",
+    # omnictl --merge already selects the new Talos context (named like k5s-home-ops-home-ops)
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["omni-validate"]
@@ -98,7 +98,8 @@ run = [
     "omnictl talosconfig -c management --merge $TALOSCONFIG",
     "omnictl kubeconfig -c management --merge --force-context-name {{vars.kube_context_mgmt}} $KUBECONFIG",
     "kubectl config use-context {{vars.kube_context_home_ops}}",
-    "talosctl config context home-ops",
+    # Prefer the home-ops Talos context if present (Omni name, not 'home-ops')
+    "bash -c 'ctx=$(talosctl config contexts | awk \"NR>1 {n=(\\$1==\\\"*\\\"?\\$2:\\$1); if (n ~ /home-ops/ && n !~ /management/) print n}\" | head -1); [ -n \\\"$ctx\\\" ] && talosctl config context \\\"$ctx\\\"'",
 ]
 dir = "kubernetes/bootstrap/talos"
 depends = ["omni-mgmt-validate"]
