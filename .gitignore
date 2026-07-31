@@ -7,6 +7,8 @@ talosconfig
 omniconfig
 1password-token
 HWIDs.md
+# SecureBoot install ISOs (large; regenerate via omnictl media download)
+secureboot-media/
 #temp
 /temp
 # Omni bootstrap: always render fresh via `mise run manifests-render`
