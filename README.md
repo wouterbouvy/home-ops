@@ -43,7 +43,8 @@ flowchart TD
 ## Prerequisites
 
 - [mise](https://mise.jdx.dev/) (`mise install` from [`.mise.toml`](.mise.toml))
-- Local-only files (gitignored): `omniconfig`, `kubeconfig`, `talosconfig`, `HWIDs.md`
+- [1Password CLI](https://developer.1password.com/docs/cli/) signed in (`op`) — mise loads the Omni **Cursor** service account from vault `k8s-secrets` (item `Omni Cursor service account`) and sets `OMNI_ENDPOINT` / `OMNI_SERVICE_ACCOUNT_KEY` (see [`scripts/omni-sa-env.sh`](scripts/omni-sa-env.sh))
+- Local-only files (gitignored): `kubeconfig`, `talosconfig`, `HWIDs.md` (`omniconfig` is optional for personal UI/cli outside mise)
 
 ## Bootstrap (home-ops)
 
