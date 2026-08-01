@@ -3,10 +3,19 @@ defaultSettings:
   defaultReplicaCount: 3
   v1DataEngine: true
   v2DataEngine: false
+  # Backup detached volumes too (e.g. scaled-to-zero apps).
+  allowRecurringJobWhileVolumeDetached: true
+
+# Longhorn 1.12+: default BackupTarget CR (not the legacy backup-target Setting).
+# NAS export: datadoos.im25.nl:/mnt/ssd_z2/kubernetes — home-ops uses a dedicated subfolder.
+defaultBackupStore:
+  backupTarget: "nfs://datadoos.im25.nl:/mnt/ssd_z2/kubernetes/home-ops"
+  pollInterval: "300"
 
 persistence:
   dataEngine: v1
   defaultClassReplicaCount: 3
+  backupTargetName: default
 
 preUpgradeChecker:
   jobEnabled: false

@@ -1,0 +1,20 @@
+apiVersion: longhorn.io/v1beta2
+kind: RecurringJob
+metadata:
+  name: backup-daily
+  namespace: longhorn-system
+spec:
+  # Snapshot + upload to the default backup target (NFS).
+  task: backup
+  # Daily 03:00 UTC
+  cron: "0 3 * * *"
+  # Keep the last 14 backups per volume for this job (~2 weeks).
+  retain: 14
+  concurrency: 1
+  groups:
+    - default
+  labels:
+    schedule: daily
+  parameters:
+    # Full backup every 7 incrementals (weekly full).
+    full-backup-interval: "7"
