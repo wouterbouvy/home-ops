@@ -11,8 +11,10 @@ spec:
   - name: external
     namespace: kube-system
   rules:
+  # Embedded Authentik proxy outpost (Host-based) → Longhorn UI upstream.
   - backendRefs:
-    - name: longhorn-frontend
+    - name: authentik-server
+      namespace: authentik
       port: 80
     matches:
     - path:

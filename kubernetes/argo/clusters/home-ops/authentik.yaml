@@ -1,0 +1,49 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: authentik
+  namespace: argo-system
+  annotations:
+    # After shared CNPG cluster + authentik Database/Role (postgres wave 1).
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: default
+  destination:
+    name: in-cluster
+    namespace: authentik
+  sources:
+    - repoURL: https://charts.goauthentik.io
+      chart: authentik
+      targetRevision: 2026.5.6
+      helm:
+        releaseName: authentik
+        valueFiles:
+          - $repo/kubernetes/apps/authentik/values.yaml
+    - repoURL: "https://github.com/wouterbouvy/home-ops.git"
+      path: kubernetes/apps/authentik
+      targetRevision: main
+      ref: repo
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true
+      - SkipDryRunOnMissingResource=true
+  ignoreDifferences:
+    - group: ""
+      kind: Secret
+      name: authentik-app
+      jsonPointers:
+        - /data
+    - group: ""
+      kind: Secret
+      name: authentik-oidc-clients
+      jsonPointers:
+        - /data

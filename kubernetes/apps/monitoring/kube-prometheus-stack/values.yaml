@@ -29,11 +29,37 @@ grafana:
   replicas: 1
   admin:
     existingSecret: ""
-  # Password is stored in Secret grafana-admin (chart-generated) until rotated via 1Password.
+  # OIDC via Authentik; client secret from ExternalSecret grafana-oidc.
+  # Local login form/basic auth disabled (break-glass: re-enable in values and sync).
+  envValueFrom:
+    GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET:
+      secretKeyRef:
+        name: grafana-oidc
+        key: client_secret
   grafana.ini:
     server:
       root_url: https://grafana.home-ops.nl
       domain: grafana.home-ops.nl
+    auth:
+      disable_login_form: true
+    auth.basic:
+      enabled: false
+    auth.generic_oauth:
+      enabled: true
+      name: Authentik
+      allow_sign_up: true
+      auto_login: false
+      client_id: grafana
+      scopes: openid profile email offline_access
+      auth_url: https://authentik.home-ops.nl/application/o/authorize/
+      token_url: https://authentik.home-ops.nl/application/o/token/
+      api_url: https://authentik.home-ops.nl/application/o/userinfo/
+      role_attribute_path: contains(groups[*], 'Grafana Admins') && 'Admin' || contains(groups[*], 'Home Ops Users') && 'Editor' || 'Viewer'
+      login_attribute_path: preferred_username
+      name_attribute_path: name
+      email_attribute_path: email
+      groups_attribute_path: groups
+      use_pkce: true
   ingress:
     enabled: false
   serviceMonitor:

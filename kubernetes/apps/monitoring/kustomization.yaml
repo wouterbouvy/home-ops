@@ -3,3 +3,4 @@ kind: Kustomization
 resources:
   - httproute-grafana.yaml
   - grafana-datasource-loki.yaml
+  - externalsecret-grafana-oidc.yaml

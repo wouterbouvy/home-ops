@@ -1,0 +1,26 @@
+---
+# Shared Postgres for Authentik, Home Assistant recorder, and future apps.
+# Add per-app DatabaseRole + Database manifests alongside this cluster.
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: postgres
+  namespace: database
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  instances: 1
+  storage:
+    size: 20Gi
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1536Mi
+  monitoring:
+    enablePodMonitor: true
+  bootstrap:
+    initdb:
+      database: app
+      owner: app

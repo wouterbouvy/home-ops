@@ -3,6 +3,9 @@ kind: Kustomization
 resources:
   - ../../common
   - longhorn.yaml
+  - cloudnative-pg.yaml
+  - postgres.yaml
+  - authentik.yaml
   - metrics-server.yaml
   - kube-prometheus-stack.yaml
   - loki.yaml
