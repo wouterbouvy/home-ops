@@ -87,7 +87,7 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 | Public domain | `home-ops.nl` |
 | External Gateway VIP | `10.0.8.120` |
 | Internal Gateway VIP | `10.0.8.110` |
-| Example hosts | `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl` |
+| Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl` |
 
 **TLS uses Let's Encrypt staging on purpose** while the lab is under active change:
 
@@ -100,12 +100,46 @@ Point Cloudflare DNS for `*.home-ops.nl` at `10.0.8.120`.
 
 **Gateway exposure:** the external Gateway `http` listener only allows routes from `kube-system` (`from: Same`) — use it for redirects/challenges in that namespace only. The **https** listener allows routes from **all** namespaces (`from: All`) and is the public entry for apps (`argocd`, `longhorn`, `grafana`, …). Prefer HTTPS HTTPRoutes for user-facing UIs.
 
+### Authentication (default deny)
+
+Public HTTPS UIs are protected by **Authentik** unless a route is explicitly documented as an exception.
+
+| Host | Protection |
+|------|------------|
+| `authentik.home-ops.nl` | Public IdP (login / OIDC / outpost callbacks) |
+| `argocd.home-ops.nl` | Native OIDC → Authentik (local admin disabled) |
+| `grafana.home-ops.nl` | Native OIDC → Authentik (login form / basic auth disabled) |
+| `hubble.home-ops.nl` | Authentik **proxy** outpost → Hubble UI |
+| `longhorn.home-ops.nl` | Authentik **proxy** outpost → Longhorn UI |
+
+**Add a new public UI:** prefer app-native OIDC against Authentik; if the app has no SSO, put an Authentik proxy provider in [`kubernetes/apps/authentik/blueprints.yaml`](kubernetes/apps/authentik/blueprints.yaml), attach it to the embedded outpost, and point the HTTPRoute at `authentik-server` in `authentik` (see Hubble/Longhorn + ReferenceGrant). Do **not** publish an unprotected HTTPRoute on the external Gateway.
+
+**1Password:** create item `authentik` in vault `k8s-secrets` with fields `SECRET_KEY`, `POSTGRES_PASSWORD`, `BOOTSTRAP_PASSWORD`, `BOOTSTRAP_EMAIL`, `ARGOCD_CLIENT_SECRET`, `GRAFANA_CLIENT_SECRET`. `POSTGRES_PASSWORD` is the Authentik DB role on the shared CNPG cluster. ExternalSecrets sync these into the cluster. OIDC client IDs are fixed (`argocd`, `grafana`).
+
+**Bootstrap admin:** log in once at `https://authentik.home-ops.nl` with `akadmin` / `BOOTSTRAP_PASSWORD`, then add your user to groups `ArgoCD Admins`, `Grafana Admins`, and/or `Home Ops Users`.
+
+**Break-glass (local admin):**
+
+- Argo CD: set `configs.cm.admin.enabled: "true"` in [`kubernetes/apps/argo-system/values.yaml`](kubernetes/apps/argo-system/values.yaml), sync, then `argocd admin initial-password -n argo-system` (or the initial admin secret).
+- Grafana: set `auth.disable_login_form: false` and `auth.basic.enabled: true` in kube-prometheus-stack values, sync, use the chart admin secret.
+
+### Shared PostgreSQL (CloudNativePG)
+
+home-ops runs one CNPG cluster `postgres` in namespace `database` (Longhorn PVC, single instance). Apps get their own role + database:
+
+| App | Role / DB | Connect |
+|-----|-----------|---------|
+| Authentik | `authentik` | `postgres-rw.database.svc.cluster.local:5432` |
+
+**Add another app DB** (e.g. Home Assistant recorder): add `DatabaseRole` + `Database` under [`kubernetes/apps/database/`](kubernetes/apps/database/), password via ExternalSecret (`kubernetes.io/basic-auth` with `cnpg.io/reload: "true"`), point the app at `postgres-rw.database.svc.cluster.local`.
+
 ### Cert bootstrap order
 
 1. External Secrets (`sync-wave: -2`) + `1password-token`
 2. cert-manager chart (`-1`)
 3. Cloudflare ExternalSecret then ClusterIssuer (`cert-manager-config` wave `0`, issuer resource wave `1`)
 4. Gateway Certificate → HTTPS routes
+5. CloudNativePG operator (`0`) → shared `postgres` cluster (`1`) → Authentik (`2`) then app OIDC / proxy routes
 
 ## SecureBoot / TPM
 
@@ -126,10 +160,10 @@ home-ops runs a light metrics + logs + Hubble stack (home-ops only, under `argo/
 
 | UI | URL |
 |----|-----|
-| Grafana | https://grafana.home-ops.nl |
-| Hubble UI | https://hubble.home-ops.nl |
+| Grafana | https://grafana.home-ops.nl (Authentik OIDC) |
+| Hubble UI | https://hubble.home-ops.nl (Authentik proxy) |
 
-Grafana admin password: `kubectl -n monitoring get secret kube-prometheus-stack-grafana -o jsonpath='{.data.admin-password}' | base64 -d`.
+Grafana uses Authentik SSO (local login disabled). See [Authentication (default deny)](#authentication-default-deny) for break-glass.
 
 To scrape a new app, add a `ServiceMonitor`/`PodMonitor` in the app namespace (or under [`kubernetes/apps/monitoring/`](kubernetes/apps/monitoring/)); Prometheus is configured with empty selectors so it picks up cluster-wide monitors. Spegel ServiceMonitor is enabled in chart values (needs Prometheus Operator CRDs — Spegel Application uses `SkipDryRunOnMissingResource`).
 

@@ -11,8 +11,10 @@ spec:
     - name: external
       namespace: kube-system
   rules:
+    # Embedded Authentik proxy outpost (Host-based) → Hubble UI upstream.
     - backendRefs:
-        - name: hubble-ui
+        - name: authentik-server
+          namespace: authentik
           port: 80
       matches:
         - path:

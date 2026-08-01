@@ -1,0 +1,54 @@
+# Home-ops sized Authentik: single replicas.
+# Postgres: shared CloudNativePG cluster (postgres-rw.database.svc).
+# Secrets: ExternalSecret authentik-app (1Password item "authentik").
+
+authentik:
+  enabled: true
+  log_level: info
+  existingSecret:
+    secretName: authentik-app
+  error_reporting:
+    enabled: false
+
+blueprints:
+  configMaps:
+    - authentik-blueprints
+
+global:
+  envFrom:
+    - secretRef:
+        name: authentik-oidc-clients
+
+server:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 512Mi
+    limits:
+      memory: 1024Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  route:
+    main:
+      enabled: false
+  ingress:
+    enabled: false
+
+worker:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      memory: 768Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+postgresql:
+  enabled: false

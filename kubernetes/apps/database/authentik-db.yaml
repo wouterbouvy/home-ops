@@ -1,0 +1,59 @@
+---
+# yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/external-secrets.io/externalsecret_v1.json
+# Password from 1Password item "authentik" field POSTGRES_PASSWORD.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: authentik-db
+  namespace: database
+  annotations:
+    argocd.argoproj.io/sync-wave: "-1"
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: ClusterSecretStore
+    name: 1password
+  target:
+    name: authentik-db
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      type: kubernetes.io/basic-auth
+      metadata:
+        labels:
+          cnpg.io/reload: "true"
+      data:
+        username: authentik
+        password: "{{ .POSTGRES_PASSWORD }}"
+  dataFrom:
+    - extract:
+        key: authentik
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: DatabaseRole
+metadata:
+  name: authentik
+  namespace: database
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  cluster:
+    name: postgres
+  name: authentik
+  login: true
+  passwordSecret:
+    name: authentik-db
+---
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: authentik
+  namespace: database
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  cluster:
+    name: postgres
+  name: authentik
+  owner: authentik
+  databaseReclaimPolicy: retain

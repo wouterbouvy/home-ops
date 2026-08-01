@@ -3,3 +3,26 @@ configs:
   params:
     server.insecure: true
     controller.diff.server.side: true
+  cm:
+    url: https://argocd.home-ops.nl
+    # Local admin disabled; use Authentik OIDC. Break-glass: set to "true" and sync.
+    admin.enabled: "false"
+    oidc.config: |
+      name: Authentik
+      issuer: https://authentik.home-ops.nl/application/o/argocd/
+      clientID: argocd
+      clientSecret: $oidc.authentik.clientSecret
+      requestedScopes:
+        - openid
+        - profile
+        - email
+        - offline_access
+      requestedIDTokenClaims:
+        groups:
+          essential: true
+  rbac:
+    policy.default: ""
+    policy.csv: |
+      g, ArgoCD Admins, role:admin
+      g, Home Ops Users, role:readonly
+    scopes: '[groups]'
