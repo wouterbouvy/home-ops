@@ -131,6 +131,14 @@ home-ops runs one CNPG cluster `postgres` in namespace `database` (Longhorn PVC,
 
 **Add another app DB** (e.g. Home Assistant recorder): add `DatabaseRole` + `Database` under [`kubernetes/apps/database/`](kubernetes/apps/database/), password via ExternalSecret (`kubernetes.io/basic-auth` with `cnpg.io/reload: "true"`), point the app at `postgres-rw.database.svc.cluster.local`.
 
+### Longhorn PVC backups (NFS)
+
+home-ops backs up Longhorn volumes to NAS **`datadoos.im25.nl:/mnt/ssd_z2/kubernetes/home-ops`** (dedicated folder on the `kubernetes` NFS export) via Longhorn’s default backup target. A daily RecurringJob (`backup-daily`, 03:00 UTC, retain **14**) covers volumes in the `default` group.
+
+Runbook (create / restore / retention): [`kubernetes/apps/longhorn-system/BACKUPS.md`](kubernetes/apps/longhorn-system/BACKUPS.md).
+
+**Do not** apply NAS-side retention on that folder. Postgres on CNPG is only crash-consistent via PVC backup; prefer CNPG object-store backups for DB recovery later.
+
 ### Cert bootstrap order
 
 1. External Secrets (`sync-wave: -2`) + `1password-token`
