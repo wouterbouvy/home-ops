@@ -51,6 +51,10 @@ data:
           client_type: confidential
           client_id: argocd
           client_secret: !Env ARGOCD_CLIENT_SECRET
+          # Authentik 2026.5+: empty grant_types rejects all authorize requests.
+          grant_types:
+            - authorization_code
+            - refresh_token
           redirect_uris:
             - matching_mode: strict
               url: https://argocd.home-ops.nl/auth/callback
@@ -87,6 +91,10 @@ data:
           client_type: confidential
           client_id: grafana
           client_secret: !Env GRAFANA_CLIENT_SECRET
+          # Authentik 2026.5+: empty grant_types rejects all authorize requests.
+          grant_types:
+            - authorization_code
+            - refresh_token
           redirect_uris:
             - matching_mode: strict
               url: https://grafana.home-ops.nl/login/generic_oauth
