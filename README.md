@@ -89,12 +89,10 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 | Internal Gateway VIP | `10.0.8.110` |
 | Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl` |
 
-**TLS uses Let's Encrypt staging on purpose** while the lab is under active change:
+**TLS:** Let's Encrypt **production** via DNS-01 (Cloudflare):
 
-- ClusterIssuer: `letsencrypt-staging`
-- Certificate / secret: `home-ops-nl-staging` → `home-ops-nl-staging-tls`
-- Browsers will show a trust warning (staging CA). That is expected.
-- Production issuer stays commented until a deliberate cutover.
+- ClusterIssuer: `letsencrypt-production`
+- Certificate / secret: `home-ops-nl` → `home-ops-nl-tls` (covers `home-ops.nl` and `*.home-ops.nl`)
 
 Point Cloudflare DNS for `*.home-ops.nl` at `10.0.8.120`.
 
@@ -168,6 +166,4 @@ Grafana uses Authentik SSO (local login disabled). See [Authentication (default 
 To scrape a new app, add a `ServiceMonitor`/`PodMonitor` in the app namespace (or under [`kubernetes/apps/monitoring/`](kubernetes/apps/monitoring/)); Prometheus is configured with empty selectors so it picks up cluster-wide monitors. Spegel ServiceMonitor is enabled in chart values (needs Prometheus Operator CRDs — Spegel Application uses `SkipDryRunOnMissingResource`).
 
 Talos etcd / controller-manager / scheduler / kube-proxy scrapes are **disabled** in kube-prometheus-stack values (not reachable like kubeadm).
-
-**Production TLS** for `home-ops.nl` remains deferred (staging LE on purpose; see Ingress and TLS above).
 

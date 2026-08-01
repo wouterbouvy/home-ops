@@ -1,20 +1,18 @@
 ---
 # yaml-language-server: $schema=https://kubernetes-schemas.pages.dev/cert-manager.io/clusterissuer_v1.json
-# Intentional: Let's Encrypt staging for home-ops.nl while the lab is under active
-# change (browsers warn; avoids HSTS friction). Production issuer stays commented
-# until a deliberate cutover — see root README.
+# Production Let's Encrypt for home-ops.nl (needed for trusted OIDC / browser TLS).
+# Staging issuer kept commented for emergency rollback.
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: letsencrypt-staging
+  name: letsencrypt-production
   annotations:
     argocd.argoproj.io/sync-wave: '1'
 spec:
   acme:
-    server: https://acme-staging-v02.api.letsencrypt.org/directory # For staging
-    # server: https://acme-v02.api.letsencrypt.org/directory # For production
+    server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
-      name: letsencrypt-staging
+      name: letsencrypt-production
     solvers:
       - dns01:
           cloudflare:
@@ -27,15 +25,14 @@ spec:
 # apiVersion: cert-manager.io/v1
 # kind: ClusterIssuer
 # metadata:
-#   name: letsencrypt-production
+#   name: letsencrypt-staging
 #   annotations:
 #     argocd.argoproj.io/sync-wave: '1'
 # spec:
 #   acme:
-#     # server: https://acme-staging-v02.api.letsencrypt.org/directory # For staging
-#     server: https://acme-v02.api.letsencrypt.org/directory # For production
+#     server: https://acme-staging-v02.api.letsencrypt.org/directory
 #     privateKeySecretRef:
-#       name: letsencrypt-production
+#       name: letsencrypt-staging
 #     solvers:
 #       - dns01:
 #           cloudflare:

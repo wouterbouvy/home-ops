@@ -30,4 +30,4 @@ spec:
       tls:
         certificateRefs:
           - kind: Secret
-            name: home-ops-nl-staging-tls
+            name: home-ops-nl-tls

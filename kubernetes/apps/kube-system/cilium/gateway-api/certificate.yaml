@@ -1,12 +1,11 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: home-ops-nl-staging
-  # Staging LE cert (intentional). See root README TLS section.
+  name: home-ops-nl
 spec:
-  secretName: home-ops-nl-staging-tls
+  secretName: home-ops-nl-tls
   issuerRef:
-    name: letsencrypt-staging
+    name: letsencrypt-production
     kind: ClusterIssuer
   commonName: home-ops.nl
   dnsNames:
