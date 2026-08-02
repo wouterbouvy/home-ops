@@ -9,12 +9,14 @@ When creating or updating plans (CreatePlan, plan mode, or any `*.plan.md` file)
 
 - **Always** write the plan under the workspace: `.cursor/plans/<name>.plan.md`
 - Do **not** leave the only copy under `~/.cursor/plans/` — if a plan is created there, copy or write it into the workspace path as well
+- When a plan is **done** (implemented / merged), move it to `.cursor/plans/archive/`
 - Plans are gitignored (see `.gitignore`); keep them local to this repo for context across chats
 
-Example path:
+Example paths:
 
 ```text
 .cursor/plans/kubevirt_multus_vms_1678f99c.plan.md
+.cursor/plans/archive/lazy_omni_1password_afd7c8f7.plan.md
 ```
 
 # Never store secrets in plans
