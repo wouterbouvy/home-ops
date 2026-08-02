@@ -13,9 +13,9 @@ Always create a **new branch** for new features or non-trivial changes. Do not c
 
 # After merge
 
-Once the PR is **merged**:
+**Always sync after a merge.** Do not leave the workspace on the feature branch.
 
-1. Check out `main` and pull the latest (`git checkout main && git pull`).
+1. Sync to latest `main`: `git checkout main && git pull` (fast-forward to the merge commit).
 2. Delete the local feature branch (`git branch -d <branch>`).
 3. Delete the remote feature branch if it still exists (`git push origin --delete <branch>`), unless GitHub already removed it on merge.
-4. Do not keep working on a merged branch; start a new branch from `main` for the next change.
+4. Do not keep working on a merged branch; start a new branch from up-to-date `main` for the next change.
