@@ -1,0 +1,28 @@
+---
+description: Store plans in workspace .cursor/plans/; never put secrets in plans
+alwaysApply: true
+---
+
+# Plans live in the workspace
+
+When creating or updating plans (CreatePlan, plan mode, or any `*.plan.md` file):
+
+- **Always** write the plan under the workspace: `.cursor/plans/<name>.plan.md`
+- Do **not** leave the only copy under `~/.cursor/plans/` — if a plan is created there, copy or write it into the workspace path as well
+- Plans are gitignored (see `.gitignore`); keep them local to this repo for context across chats
+
+Example path:
+
+```text
+.cursor/plans/kubevirt_multus_vms_1678f99c.plan.md
+```
+
+# Never store secrets in plans
+
+Plans must not contain secrets or credentials, even though they are gitignored.
+
+**Do not include:** passwords, API keys, tokens, private keys, kubeconfigs, OAuth client secrets, 1Password item contents, `op read` output, Connection strings with credentials, or pasted Secret/YAML data values.
+
+**OK to include:** secret *names*, ExternalSecret/1Password *item references* (e.g. `op://Vault/Item/field`), file paths, and “create in 1Password / wire via ESO” steps — never the secret values themselves.
+
+If a secret appears in a plan by mistake, remove it immediately and rotate if it was a real credential.
