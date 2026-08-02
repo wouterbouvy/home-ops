@@ -11,11 +11,12 @@ alwaysApply: true
 - Prefer a descriptive prefix matching existing repo style.
 - One concern per branch/PR when practical; do not pile unrelated work onto an existing feature branch unless the user asks.
 - **Never** open a **draft** PR unless the user explicitly asks for a draft. Default to a normal (ready) PR.
+- **Never** merge a PR (`gh pr merge`, merge queue, admin merge, etc.) unless the user explicitly asks to merge.
 - Checking out `main` is fine only to pull/sync after a merge — not to land new work.
 
 # After merge
 
-**Always sync after a merge.** Do not leave the workspace on the feature branch.
+**Only after a PR is merged** (by the user, or after they explicitly asked you to merge): **always sync**. Do not leave the workspace on the feature branch.
 
 1. Sync to latest `main`: `git checkout main && git pull` (fast-forward to the merge commit).
 2. Delete the local feature branch (`git branch -d <branch>`).
