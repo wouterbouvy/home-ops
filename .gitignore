@@ -1,6 +1,8 @@
 # Trash
 .DS_Store
 Thumbs.db
+# Cursor agent plans (local only)
+.cursor/plans/
 # k8s / Omni local credentials
 kubeconfig
 talosconfig
