@@ -1,13 +1,11 @@
 redactions = ["OMNI_SERVICE_ACCOUNT_KEY"]
 
 [env]
-# Omni: Cursor service account via 1Password (scripts/omni-sa-env.sh). Do not set
-# OMNICONFIG alongside OMNI_ENDPOINT / OMNI_SERVICE_ACCOUNT_KEY — they conflict.
-OMNICONFIG = false
+# Omni SA is loaded only by scripts/with-omni-sa.sh for omnictl tasks (not every mise run).
+# Do not set OMNICONFIG alongside OMNI_ENDPOINT / OMNI_SERVICE_ACCOUNT_KEY — they conflict.
 KUBECONFIG = "{{config_root}}/kubeconfig"
 TALOSCONFIG = "{{config_root}}/talosconfig"
 _.file = "{{config_root}}/kubernetes/versions.env"
-_.source = { path = "{{config_root}}/scripts/omni-sa-env.sh", tools = true }
 
 [vars]
 cluster = 'default'
@@ -44,10 +42,18 @@ run = [
 ]
 dir = "kubernetes/bootstrap/talos"
 
+[tasks.omnictl]
+description = "Run omnictl with Cursor Omni SA from 1Password"
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+exec "{{config_root}}/scripts/with-omni-sa.sh" omnictl "$@"
+"""
+
 [tasks.omni-validate]
 description = "Validate home-ops Omni cluster template"
 run = [
-    "omnictl cluster template validate -f omni-home-ops.yaml",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl cluster template validate -f omni-home-ops.yaml",
 ]
 dir = "kubernetes/bootstrap/talos"
 
@@ -55,9 +61,9 @@ dir = "kubernetes/bootstrap/talos"
 description = "Sync home-ops cluster; merge kube/talos contexts and set home-ops as default"
 run = [
     "mise run manifests-render",
-    "omnictl cluster template sync -f omni-home-ops.yaml",
-    "omnictl talosconfig -c home-ops --merge $TALOSCONFIG",
-    "omnictl kubeconfig -c home-ops --merge --force-context-name {{vars.kube_context_home_ops}} $KUBECONFIG",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl cluster template sync -f omni-home-ops.yaml",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl talosconfig -c home-ops --merge $TALOSCONFIG",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl kubeconfig -c home-ops --merge --force-context-name {{vars.kube_context_home_ops}} $KUBECONFIG",
     "kubectl config use-context {{vars.kube_context_home_ops}}",
     # omnictl --merge already selects the new Talos context (named like k5s-home-ops-home-ops)
 ]
@@ -87,13 +93,13 @@ run = [
 
 [tasks.omni-reset]
 description = "Reset home-ops cluster template"
-run = "omnictl cluster template delete -f omni-home-ops.yaml"
+run = "{{config_root}}/scripts/with-omni-sa.sh omnictl cluster template delete -f omni-home-ops.yaml"
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-mgmt-validate]
 description = "Validate management Omni cluster template (scaffold; full testing later)"
 run = [
-    "omnictl cluster template validate -f omni-mgmt.yaml",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl cluster template validate -f omni-mgmt.yaml",
 ]
 dir = "kubernetes/bootstrap/talos"
 
@@ -101,9 +107,9 @@ dir = "kubernetes/bootstrap/talos"
 description = "Sync management cluster; merge contexts into shared kube/talos configs; keep home-ops default"
 run = [
     "mise run manifests-render",
-    "omnictl cluster template sync -f omni-mgmt.yaml",
-    "omnictl talosconfig -c management --merge $TALOSCONFIG",
-    "omnictl kubeconfig -c management --merge --force-context-name {{vars.kube_context_mgmt}} $KUBECONFIG",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl cluster template sync -f omni-mgmt.yaml",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl talosconfig -c management --merge $TALOSCONFIG",
+    "{{config_root}}/scripts/with-omni-sa.sh omnictl kubeconfig -c management --merge --force-context-name {{vars.kube_context_mgmt}} $KUBECONFIG",
     "kubectl config use-context {{vars.kube_context_home_ops}}",
     # Prefer the home-ops Talos context if present (Omni name, not 'home-ops')
     "bash -c 'ctx=$(talosctl config contexts | awk \"NR>1 {n=(\\$1==\\\"*\\\"?\\$2:\\$1); if (n ~ /home-ops/ && n !~ /management/) print n}\" | head -1); [ -n \\\"$ctx\\\" ] && talosctl config context \\\"$ctx\\\"'",
@@ -113,7 +119,7 @@ depends = ["omni-mgmt-validate"]
 
 [tasks.omni-mgmt-reset]
 description = "Reset management cluster template"
-run = "omnictl cluster template delete -f omni-mgmt.yaml"
+run = "{{config_root}}/scripts/with-omni-sa.sh omnictl cluster template delete -f omni-mgmt.yaml"
 dir = "kubernetes/bootstrap/talos"
 
 [tasks.omni-wipedisks]
