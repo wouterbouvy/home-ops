@@ -5,12 +5,13 @@ alwaysApply: true
 
 # Git branching
 
-Always create a **new branch** for new features or non-trivial changes. Do not commit directly to `main`.
+`main` is **write-protected**. Never commit, push, amend, or merge locally onto `main`. Always create a feature branch first, then open a PR.
 
-- Branch from up-to-date `main` (or the user-specified base).
-- Prefer a descriptive prefix such as `cursor/` or `chore/` / `feat/` matching existing repo style.
+- Before any file edits you intend to commit: `git checkout -b cursor/<name>` (or `chore/` / `feat/`) from up-to-date `main`.
+- Prefer a descriptive prefix matching existing repo style.
 - One concern per branch/PR when practical; do not pile unrelated work onto an existing feature branch unless the user asks.
 - **Never** open a **draft** PR unless the user explicitly asks for a draft. Default to a normal (ready) PR.
+- Checking out `main` is fine only to pull/sync after a merge — not to land new work.
 
 # After merge
 
