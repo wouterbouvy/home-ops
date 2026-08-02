@@ -1,0 +1,22 @@
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: headlamp
+  namespace: headlamp
+spec:
+  hostnames:
+  - headlamp.home-ops.nl
+  parentRefs:
+  - name: external
+    namespace: kube-system
+  rules:
+  # Embedded Authentik proxy outpost (Host-based) → Headlamp upstream.
+  - backendRefs:
+    - name: authentik-server
+      namespace: authentik
+      port: 80
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
