@@ -87,7 +87,7 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 | Public domain | `home-ops.nl` |
 | External Gateway VIP | `10.0.8.120` |
 | Internal Gateway VIP | `10.0.8.110` |
-| Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl` |
+| Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl`, `headlamp.home-ops.nl` |
 
 **TLS:** Let's Encrypt **production** via DNS-01 (Cloudflare):
 
@@ -109,6 +109,7 @@ Public HTTPS UIs are protected by **Authentik** unless a route is explicitly doc
 | `grafana.home-ops.nl` | Native OIDC → Authentik (login form / basic auth disabled) |
 | `hubble.home-ops.nl` | Authentik **proxy** outpost → Hubble UI |
 | `longhorn.home-ops.nl` | Authentik **proxy** outpost → Longhorn UI |
+| `headlamp.home-ops.nl` | Authentik **proxy** outpost → Headlamp (pod SA → API; shared `cluster-admin`) |
 
 **Add a new public UI:** prefer app-native OIDC against Authentik; if the app has no SSO, put an Authentik proxy provider in [`kubernetes/apps/authentik/blueprints.yaml`](kubernetes/apps/authentik/blueprints.yaml), attach it to the embedded outpost, and point the HTTPRoute at `authentik-server` in `authentik` (see Hubble/Longhorn + ReferenceGrant). Do **not** publish an unprotected HTTPRoute on the external Gateway.
 

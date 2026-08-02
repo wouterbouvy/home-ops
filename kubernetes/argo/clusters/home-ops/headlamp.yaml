@@ -1,0 +1,36 @@
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: headlamp
+  namespace: argo-system
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  project: default
+  destination:
+    name: in-cluster
+    namespace: headlamp
+  sources:
+    - repoURL: https://kubernetes-sigs.github.io/headlamp/
+      chart: headlamp
+      targetRevision: 0.44.0
+      helm:
+        releaseName: headlamp
+        valueFiles:
+          - $repo/kubernetes/apps/headlamp/values.yaml
+    - repoURL: "https://github.com/wouterbouvy/home-ops.git"
+      path: kubernetes/apps/headlamp
+      targetRevision: main
+      ref: repo
+  syncPolicy:
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
+      - ServerSideApply=true
+      - PruneLast=true
+      - RespectIgnoreDifferences=true

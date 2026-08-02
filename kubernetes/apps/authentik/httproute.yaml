@@ -19,7 +19,7 @@ spec:
             type: PathPrefix
             value: /
 ---
-# Cross-namespace backends: Hubble/Longhorn HTTPRoutes → authentik-server (embedded proxy outpost).
+# Cross-namespace backends: proxy HTTPRoutes → authentik-server (embedded outpost).
 apiVersion: gateway.networking.k8s.io/v1beta1
 kind: ReferenceGrant
 metadata:
@@ -33,6 +33,9 @@ spec:
     - group: gateway.networking.k8s.io
       kind: HTTPRoute
       namespace: longhorn-system
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      namespace: headlamp
   to:
     - group: ""
       kind: Service

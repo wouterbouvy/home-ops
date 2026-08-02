@@ -1,0 +1,20 @@
+# Headlamp behind Authentik proxy: SA token for kube-apiserver (shared cluster-admin).
+config:
+  inCluster: true
+  unsafeUseServiceAccountToken: true
+
+ingress:
+  enabled: false
+
+service:
+  type: ClusterIP
+  port: 80
+
+automountServiceAccountToken: true
+
+serviceAccount:
+  create: true
+
+clusterRoleBinding:
+  create: true
+  clusterRoleName: cluster-admin
