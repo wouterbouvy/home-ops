@@ -6,7 +6,7 @@ Patches referenced by Omni cluster templates
 Layout:
 
 - `base/` — shared across clusters (`global/` for all machines, `controlplane/` for control planes)
-- `overlays/<cluster>/` — cluster-specific patches (NICs, disks, encryption, user volumes)
+- `overlays/<cluster>/` — cluster-specific patches (NICs, disks, encryption, user volumes, L2 VIP)
 
 Omni applies the listed `patches[].file` entries from each template; there is no
 talhelper in this repo.

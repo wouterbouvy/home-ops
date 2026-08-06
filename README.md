@@ -85,6 +85,7 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 | Item | Value |
 |------|--------|
 | Public domain | `home-ops.nl` |
+| Kubernetes API VIP (Talos L2) | `10.0.8.6` (`eno1.8`; do not use as `talosconfig` endpoint) |
 | External Gateway VIP | `10.0.8.120` |
 | Internal Gateway VIP | `10.0.8.110` |
 | Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl`, `headlamp.home-ops.nl` |
