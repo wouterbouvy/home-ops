@@ -4,3 +4,13 @@ resources:
   - ./namespace.yaml
   - ./externalsecret.yaml
   - ./deployment.yaml
+  - ./apply-job.yaml
+configMapGenerator:
+  - name: cloudflare-tunnel-ingress
+    files:
+      - ingress.yaml
+  - name: cloudflare-tunnel-apply-script
+    files:
+      - cloudflare-tunnel-apply.sh
+generatorOptions:
+  disableNameSuffixHash: true

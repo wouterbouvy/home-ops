@@ -5,7 +5,7 @@ metadata:
   name: cloudflare-tunnel
   namespace: argo-system
   annotations:
-    # After External Secrets; public hostnames are configured in Cloudflare Zero Trust.
+    # After External Secrets; PostSync Job applies ingress.yaml + DNS via Cloudflare API.
     argocd.argoproj.io/sync-wave: "3"
 spec:
   project: default

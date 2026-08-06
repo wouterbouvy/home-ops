@@ -91,7 +91,7 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 | Internet ingress | Cloudflare Tunnel (`cloudflared` in `cloudflare-tunnel`) → ClusterIP Services |
 | Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl`, `headlamp.home-ops.nl` |
 
-**Internet:** Cloudflare Tunnel (token from 1Password item `cloudflare-tunnel` / `TUNNEL_TOKEN`). Public DNS is a **proxied CNAME** to `<TUNNEL_ID>.cfargotunnel.com` (not an A record to the WAN IP or `10.0.8.120`). Hostname → Service origins are configured in Zero Trust (see [`kubernetes/apps/cloudflare-tunnel/HOSTNAMES.md`](kubernetes/apps/cloudflare-tunnel/HOSTNAMES.md)).
+**Internet:** Cloudflare Tunnel (token from 1Password item `cloudflare-tunnel` / `TUNNEL_TOKEN`). Public DNS is a **proxied CNAME** to `<TUNNEL_ID>.cfargotunnel.com` (not an A record to the WAN IP or `10.0.8.120`). Hostname → Service origins and DNS are owned by git [`ingress.yaml`](kubernetes/apps/cloudflare-tunnel/ingress.yaml) and applied by an Argo PostSync Job (see [`HOSTNAMES.md`](kubernetes/apps/cloudflare-tunnel/HOSTNAMES.md)). Dashboard edits are overwritten on sync.
 
 **LAN:** Cilium Gateway VIP `10.0.8.120` with HTTPRoutes (optional split-horizon / hosts → VIP for low latency).
 
@@ -119,7 +119,7 @@ Public HTTPS UIs are protected by **Authentik** unless a route is explicitly doc
 
 **Add a new public UI:** prefer app-native OIDC against Authentik; if the app has no SSO, put an Authentik proxy provider in [`kubernetes/apps/authentik/blueprints.yaml`](kubernetes/apps/authentik/blueprints.yaml), attach it to the embedded outpost, and point the HTTPRoute at `authentik-server` in `authentik` (see Hubble/Longhorn + ReferenceGrant). Do **not** publish an unprotected HTTPRoute on the external Gateway.
 
-**1Password:** create item `authentik` in vault `k8s-secrets` with fields `SECRET_KEY`, `POSTGRES_PASSWORD`, `BOOTSTRAP_PASSWORD`, `BOOTSTRAP_EMAIL`, `ARGOCD_CLIENT_SECRET`, `GRAFANA_CLIENT_SECRET`. `POSTGRES_PASSWORD` is the Authentik DB role on the shared CNPG cluster. Also create item `cloudflare-tunnel` with field `TUNNEL_TOKEN` for the Cloudflare Tunnel connector. ExternalSecrets sync these into the cluster. OIDC client IDs are fixed (`argocd`, `grafana`).
+**1Password:** create item `authentik` in vault `k8s-secrets` with fields `SECRET_KEY`, `POSTGRES_PASSWORD`, `BOOTSTRAP_PASSWORD`, `BOOTSTRAP_EMAIL`, `ARGOCD_CLIENT_SECRET`, `GRAFANA_CLIENT_SECRET`. `POSTGRES_PASSWORD` is the Authentik DB role on the shared CNPG cluster. Item `cloudflare-tunnel` needs `TUNNEL_TOKEN`, `TUNNEL ID` (or `TUNNEL_ID`), `ACCOUNT_ID`, and `ZONE_ID`. Tunnel config/DNS apply reuses item `cloudflare` / `CLOUDFLARE_DNS_TOKEN` (same as cert-manager; scopes: Zone DNS Edit + Account Cloudflare Tunnel Edit). ExternalSecrets sync these into the cluster. OIDC client IDs are fixed (`argocd`, `grafana`). Local apply: `mise run cloudflare-tunnel-apply`.
 
 **Bootstrap admin:** log in once at `https://authentik.home-ops.nl` with `akadmin` / `BOOTSTRAP_PASSWORD`, then add your user to groups `ArgoCD Admins`, `Grafana Admins`, and/or `Home Ops Users`.
 
