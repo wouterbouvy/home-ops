@@ -1,5 +1,5 @@
 ---
-description: Store plans in workspace .cursor/plans/; never put secrets in plans
+description: Store plans in workspace .cursor/plans/; sync to private GitHub; never put secrets in plans
 alwaysApply: true
 ---
 
@@ -10,7 +10,7 @@ When creating or updating plans (CreatePlan, plan mode, or any `*.plan.md` file)
 - **Always** write the plan under the workspace: `.cursor/plans/<name>.plan.md`
 - Do **not** leave the only copy under `~/.cursor/plans/` — if a plan is created there, copy or write it into the workspace path as well
 - When a plan is **done** (implemented / merged), move it to `.cursor/plans/archive/`
-- Plans are gitignored (see `.gitignore`); keep them local to this repo for context across chats
+- Plans are gitignored in home-ops (see `.gitignore`); keep local copies for context across chats
 
 Example paths:
 
@@ -19,9 +19,20 @@ Example paths:
 .cursor/plans/archive/lazy_omni_1password_afd7c8f7.plan.md
 ```
 
+# Sync to private GitHub
+
+Mirror plans to the private repo **[wouterbouvy/home-ops-plans](https://github.com/wouterbouvy/home-ops-plans)** (layout: `plans/` and `plans/archive/`).
+
+After creating, updating, or archiving a plan:
+
+1. Clone or update a temp/worktree copy of `home-ops-plans` (do not commit plans into `home-ops`).
+2. Copy the workspace plan file(s) into matching paths under `plans/` or `plans/archive/`.
+3. Commit and push to `main` on `home-ops-plans` with a short message (e.g. `Add <plan-name>` / `Archive <plan-name>`).
+4. Never put secrets in those commits (same rules as below).
+
 # Never store secrets in plans
 
-Plans must not contain secrets or credentials, even though they are gitignored.
+Plans must not contain secrets or credentials, even though they are gitignored locally and the mirror repo is private.
 
 **Do not include:** passwords, API keys, tokens, private keys, kubeconfigs, OAuth client secrets, 1Password item contents, `op read` output, Connection strings with credentials, or pasted Secret/YAML data values.
 
