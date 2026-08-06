@@ -3,7 +3,7 @@
 #
 # Omni's public kube-apiserver proxy (omni.k5s.dev) expects Omni OIDC, not Kubernetes SA
 # tokens. This kubeconfig therefore targets a control-plane kube-apiserver on the LAN
-# (default https://10.0.8.3:6443). Override with HEADLAMP_DESKTOP_SERVER if needed.
+# (default https://10.0.8.6:6443 Talos L2 VIP). Override with HEADLAMP_DESKTOP_SERVER if needed.
 #
 # Requires: existing cluster access via $KUBECONFIG (repo kubeconfig), SA already present.
 set -euo pipefail
@@ -14,8 +14,8 @@ NS=headlamp
 SA=headlamp-desktop
 SECRET=headlamp-desktop-token
 CONTEXT_NAME="${HEADLAMP_DESKTOP_CONTEXT:-headlamp-desktop}"
-# Direct kube-apiserver (LAN). Not the Omni proxy URL from the repo kubeconfig.
-SERVER="${HEADLAMP_DESKTOP_SERVER:-https://10.0.8.3:6443}"
+# Talos L2 VIP on eno1.8 (HA across control planes). Not the Omni proxy URL.
+SERVER="${HEADLAMP_DESKTOP_SERVER:-https://10.0.8.6:6443}"
 
 export KUBECONFIG="${KUBECONFIG:-${ROOT}/kubeconfig}"
 

@@ -111,7 +111,7 @@ Public HTTPS UIs are protected by **Authentik** unless a route is explicitly doc
 | `longhorn.home-ops.nl` | Authentik **proxy** outpost → Longhorn UI |
 | `headlamp.home-ops.nl` | Authentik **proxy** outpost → Headlamp (pod SA → API; shared `cluster-admin`) |
 
-**Desktop Headlamp:** mint a local kubeconfig for the `headlamp-desktop` SA (`cluster-admin`) with `mise run headlamp-desktop-kubeconfig` (writes gitignored `kubeconfig-headlamp-desktop`). Point the desktop app at that file. The file talks to a LAN control-plane API (`https://10.0.8.3:6443` by default; override with `HEADLAMP_DESKTOP_SERVER`) because the Omni proxy does not accept Kubernetes SA tokens.
+**Desktop Headlamp:** mint a local kubeconfig for the `headlamp-desktop` SA (`cluster-admin`) with `mise run headlamp-desktop-kubeconfig` (writes gitignored `kubeconfig-headlamp-desktop`). Point the desktop app at that file. The file talks to the Talos L2 Kubernetes API VIP (`https://10.0.8.6:6443` by default; override with `HEADLAMP_DESKTOP_SERVER`) because the Omni proxy does not accept Kubernetes SA tokens.
 
 **Add a new public UI:** prefer app-native OIDC against Authentik; if the app has no SSO, put an Authentik proxy provider in [`kubernetes/apps/authentik/blueprints.yaml`](kubernetes/apps/authentik/blueprints.yaml), attach it to the embedded outpost, and point the HTTPRoute at `authentik-server` in `authentik` (see Hubble/Longhorn + ReferenceGrant). Do **not** publish an unprotected HTTPRoute on the external Gateway.
 
