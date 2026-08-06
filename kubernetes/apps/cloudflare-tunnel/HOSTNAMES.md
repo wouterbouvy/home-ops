@@ -21,7 +21,7 @@ Proxy apps (Hubble / Longhorn / Headlamp) **must** use Authentik’s Service.
 
 **1Password**
 
-- Item `cloudflare-tunnel`: `TUNNEL_TOKEN`, `TUNNEL ID` (or `TUNNEL_ID`), `ACCOUNT_ID`, `ZONE_ID`
+- Item `cloudflare-tunnel`: `TUNNEL_TOKEN`, `TUNNEL_ID`, `ACCOUNT_ID`, `ZONE_ID`
 - Item `cloudflare` / `CLOUDFLARE_DNS_TOKEN` (same token as cert-manager): needs **Zone DNS Edit** and **Account → Cloudflare Tunnel → Edit**
 
 **Local apply:** `mise run cloudflare-tunnel-apply` (loads IDs/token from 1Password when env unset). `DRY_RUN=1` prints planned calls.
