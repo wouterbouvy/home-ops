@@ -21,6 +21,7 @@ kube_context_mgmt = 'management'
 "aqua:helm/helm" = "4.2.3"
 "aqua:cilium/cilium-cli" = "0.19.7"
 "aqua:jqlang/jq" = "1.8.2"
+"aqua:mikefarah/yq" = "4.45.4"
 "aqua:1password/cli" = "v2.35.0"
 "aqua:kubevirt/kubevirt/virtctl" = "v1.9.0"
 "aqua:int128/kubelogin" = "{{env.KUBERNETES_VERSION}}"
@@ -53,6 +54,10 @@ exec "{{config_root}}/scripts/with-omni-sa.sh" omnictl "$@"
 [tasks.headlamp-desktop-kubeconfig]
 description = "Mint gitignored kubeconfig-headlamp-desktop for desktop Headlamp (SA token)"
 run = "{{config_root}}/scripts/headlamp-desktop-kubeconfig.sh"
+
+[tasks.cloudflare-tunnel-apply]
+description = "Apply Cloudflare Tunnel ingress + proxied DNS from ingress.yaml (uses 1Password when env unset)"
+run = "{{config_root}}/scripts/cloudflare-tunnel-apply.sh"
 
 [tasks.omni-validate]
 description = "Validate home-ops Omni cluster template"

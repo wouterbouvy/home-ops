@@ -86,18 +86,21 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 |------|--------|
 | Public domain | `home-ops.nl` |
 | Kubernetes API VIP (Talos L2) | `10.0.8.6` (`eno1.8`; do not use as `talosconfig` endpoint) |
-| External Gateway VIP | `10.0.8.120` |
+| External Gateway VIP (LAN) | `10.0.8.120` |
 | Internal Gateway VIP | `10.0.8.110` |
+| Internet ingress | Cloudflare Tunnel (`cloudflared` in `cloudflare-tunnel`) → ClusterIP Services |
 | Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl`, `headlamp.home-ops.nl` |
 
-**TLS:** Let's Encrypt **production** via DNS-01 (Cloudflare):
+**Internet:** Cloudflare Tunnel (token from 1Password item `cloudflare-tunnel` / `TUNNEL_TOKEN`). Public DNS is a **proxied CNAME** to `<TUNNEL_ID>.cfargotunnel.com` (not an A record to the WAN IP or `10.0.8.120`). Hostname → Service origins and DNS are owned by git [`ingress.yaml`](kubernetes/apps/cloudflare-tunnel/ingress.yaml) and applied by an Argo PostSync Job (see [`HOSTNAMES.md`](kubernetes/apps/cloudflare-tunnel/HOSTNAMES.md)). Dashboard edits are overwritten on sync.
 
-- ClusterIssuer: `letsencrypt-production`
-- Certificate / secret: `home-ops-nl` → `home-ops-nl-tls` (covers `home-ops.nl` and `*.home-ops.nl`)
+**LAN:** Cilium Gateway VIP `10.0.8.120` with HTTPRoutes (optional split-horizon / hosts → VIP for low latency).
 
-Point Cloudflare DNS for `*.home-ops.nl` at `10.0.8.120`.
+**TLS:**
 
-**Gateway exposure:** the external Gateway `http` listener only allows routes from `kube-system` (`from: Same`) — use it for redirects/challenges in that namespace only. The **https** listener allows routes from **all** namespaces (`from: All`) and is the public entry for apps (`argocd`, `longhorn`, `grafana`, …). Prefer HTTPS HTTPRoutes for user-facing UIs.
+- **Internet:** Cloudflare terminates visitor HTTPS; origins are HTTP to in-cluster Services.
+- **LAN Gateway:** Let's Encrypt **production** via DNS-01 (Cloudflare API): ClusterIssuer `letsencrypt-production`; Certificate `home-ops-nl` → secret `home-ops-nl-tls` (`home-ops.nl`, `*.home-ops.nl`).
+
+**Gateway exposure (LAN):** the external Gateway `http` listener only allows routes from `kube-system` (`from: Same`). The **https** listener allows routes from **all** namespaces (`from: All`). Prefer HTTPS HTTPRoutes for LAN UIs.
 
 ### Authentication (default deny)
 
@@ -116,7 +119,7 @@ Public HTTPS UIs are protected by **Authentik** unless a route is explicitly doc
 
 **Add a new public UI:** prefer app-native OIDC against Authentik; if the app has no SSO, put an Authentik proxy provider in [`kubernetes/apps/authentik/blueprints.yaml`](kubernetes/apps/authentik/blueprints.yaml), attach it to the embedded outpost, and point the HTTPRoute at `authentik-server` in `authentik` (see Hubble/Longhorn + ReferenceGrant). Do **not** publish an unprotected HTTPRoute on the external Gateway.
 
-**1Password:** create item `authentik` in vault `k8s-secrets` with fields `SECRET_KEY`, `POSTGRES_PASSWORD`, `BOOTSTRAP_PASSWORD`, `BOOTSTRAP_EMAIL`, `ARGOCD_CLIENT_SECRET`, `GRAFANA_CLIENT_SECRET`. `POSTGRES_PASSWORD` is the Authentik DB role on the shared CNPG cluster. ExternalSecrets sync these into the cluster. OIDC client IDs are fixed (`argocd`, `grafana`).
+**1Password:** create item `authentik` in vault `k8s-secrets` with fields `SECRET_KEY`, `POSTGRES_PASSWORD`, `BOOTSTRAP_PASSWORD`, `BOOTSTRAP_EMAIL`, `ARGOCD_CLIENT_SECRET`, `GRAFANA_CLIENT_SECRET`. `POSTGRES_PASSWORD` is the Authentik DB role on the shared CNPG cluster. Item `cloudflare-tunnel` needs `TUNNEL_TOKEN`, `TUNNEL_ID`, `ACCOUNT_ID`, and `ZONE_ID`. Tunnel config/DNS apply reuses item `cloudflare` / `CLOUDFLARE_DNS_TOKEN` (same as cert-manager; scopes: Zone DNS Edit + Account Cloudflare Tunnel Edit). ExternalSecrets sync these into the cluster. OIDC client IDs are fixed (`argocd`, `grafana`). Local apply: `mise run cloudflare-tunnel-apply`.
 
 **Bootstrap admin:** log in once at `https://authentik.home-ops.nl` with `akadmin` / `BOOTSTRAP_PASSWORD`, then add your user to groups `ArgoCD Admins`, `Grafana Admins`, and/or `Home Ops Users`.
 
@@ -148,8 +151,9 @@ Runbook (create / restore / retention): [`kubernetes/apps/longhorn-system/BACKUP
 1. External Secrets (`sync-wave: -2`) + `1password-token`
 2. cert-manager chart (`-1`)
 3. Cloudflare ExternalSecret then ClusterIssuer (`cert-manager-config` wave `0`, issuer resource wave `1`)
-4. Gateway Certificate → HTTPS routes
+4. Gateway Certificate → HTTPS routes (LAN)
 5. CloudNativePG operator (`0`) → shared `postgres` cluster (`1`) → Authentik (`2`) then app OIDC / proxy routes
+6. Cloudflare Tunnel (`3`) after External Secrets has `TUNNEL_TOKEN`
 
 ## SecureBoot / TPM
 
