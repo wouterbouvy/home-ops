@@ -46,6 +46,7 @@ patches:
   - file: patches/base/controlplane/allow-scheduling-on-cp.yaml
   - file: patches/overlays/home-ops/controlplane/disk-encryption.yaml
   - file: patches/overlays/home-ops/controlplane/NIC-config.yaml
+  - file: patches/overlays/home-ops/controlplane/layer2-vip.yaml
   - file: patches/overlays/home-ops/controlplane/longhorn-uservolume.yaml
   # - file: patches/overlays/home-ops/controlplane/longhorn-v2-params.yaml
 ---

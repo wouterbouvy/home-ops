@@ -1,0 +1,6 @@
+# Shared L2 VIP for Kubernetes API HA on VLAN 8 (same L2 as eno1.8).
+# etcd elects which control plane owns the address; do not use as talosconfig endpoint.
+apiVersion: v1alpha1
+kind: Layer2VIPConfig
+name: 10.0.8.6
+link: eno1.8
