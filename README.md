@@ -44,7 +44,7 @@ flowchart TD
 
 - [mise](https://mise.jdx.dev/) (`mise install` from [`.mise.toml`](.mise.toml))
 - [1Password CLI](https://developer.1password.com/docs/cli/) signed in (`op`) when running Omni tasks — `mise run omni-*` / `mise run omnictl` load the **Cursor** service account from vault `k8s-secrets` (item `Omni Cursor service account`) via [`scripts/with-omni-sa.sh`](scripts/with-omni-sa.sh) (other mise commands do not prompt)
-- Local-only files (gitignored): `kubeconfig`, `talosconfig`, `HWIDs.md` (`omniconfig` is optional for personal UI/cli outside mise)
+- Local-only files (gitignored): `kubeconfig`, `kubeconfig-headlamp-desktop`, `talosconfig`, `HWIDs.md` (`omniconfig` is optional for personal UI/cli outside mise)
 
 ## Bootstrap (home-ops)
 
@@ -110,6 +110,8 @@ Public HTTPS UIs are protected by **Authentik** unless a route is explicitly doc
 | `hubble.home-ops.nl` | Authentik **proxy** outpost → Hubble UI |
 | `longhorn.home-ops.nl` | Authentik **proxy** outpost → Longhorn UI |
 | `headlamp.home-ops.nl` | Authentik **proxy** outpost → Headlamp (pod SA → API; shared `cluster-admin`) |
+
+**Desktop Headlamp:** mint a local kubeconfig for the `headlamp-desktop` SA (`cluster-admin`) with `mise run headlamp-desktop-kubeconfig` (writes gitignored `kubeconfig-headlamp-desktop`). Point the desktop app at that file. The file talks to a LAN control-plane API (`https://10.0.8.3:6443` by default; override with `HEADLAMP_DESKTOP_SERVER`) because the Omni proxy does not accept Kubernetes SA tokens.
 
 **Add a new public UI:** prefer app-native OIDC against Authentik; if the app has no SSO, put an Authentik proxy provider in [`kubernetes/apps/authentik/blueprints.yaml`](kubernetes/apps/authentik/blueprints.yaml), attach it to the embedded outpost, and point the HTTPRoute at `authentik-server` in `authentik` (see Hubble/Longhorn + ReferenceGrant). Do **not** publish an unprotected HTTPRoute on the external Gateway.
 

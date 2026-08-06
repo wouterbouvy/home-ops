@@ -50,6 +50,10 @@ set -euo pipefail
 exec "{{config_root}}/scripts/with-omni-sa.sh" omnictl "$@"
 """
 
+[tasks.headlamp-desktop-kubeconfig]
+description = "Mint gitignored kubeconfig-headlamp-desktop for desktop Headlamp (SA token)"
+run = "{{config_root}}/scripts/headlamp-desktop-kubeconfig.sh"
+
 [tasks.omni-validate]
 description = "Validate home-ops Omni cluster template"
 run = [

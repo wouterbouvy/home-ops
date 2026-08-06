@@ -5,6 +5,7 @@ Thumbs.db
 .cursor/plans/
 # k8s / Omni local credentials
 kubeconfig
+kubeconfig-headlamp-desktop
 talosconfig
 omniconfig
 1password-token
