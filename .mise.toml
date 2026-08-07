@@ -55,6 +55,10 @@ exec "{{config_root}}/scripts/with-omni-sa.sh" omnictl "$@"
 description = "Mint gitignored kubeconfig-headlamp-desktop for desktop Headlamp (SA token)"
 run = "{{config_root}}/scripts/headlamp-desktop-kubeconfig.sh"
 
+[tasks.cloudflare-tunnel-config-sync]
+description = "Push cloudflare-tunnel config.yaml ingress to Cloudflare API (remote-managed tunnels)"
+run = "{{config_root}}/scripts/cloudflare-tunnel-config-sync.sh"
+
 [tasks.omni-validate]
 description = "Validate home-ops Omni cluster template"
 run = [
