@@ -50,7 +50,7 @@ spec:
             - /bin/sh
             - -ec
             - |
-              apk add --no-cache --quiet curl jq yq
+              apk add --no-cache --quiet bash curl jq yq
               exec /scripts/cloudflare-tunnel-apply.sh
           volumeMounts:
             - name: ingress
