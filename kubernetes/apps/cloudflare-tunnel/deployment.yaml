@@ -37,17 +37,26 @@ spec:
               apk add --no-cache --quiet jq
               token="${TUNNEL_TOKEN}"
               out=/shared/credentials.json
+              # TUNNEL_TOKEN is base64(JSON). Compact install tokens use a/t/s;
+              # JWT tokens use the same payload fields after decoding the middle segment.
               if printf '%s' "${token}" | grep -q '\.'; then
-                # JWT install token — payload maps a/t/s → credentials.json
                 payload="$(printf '%s' "${token}" | cut -d. -f2 | tr '_-' '/+')"
                 pad=$(( (4 - ${#payload} % 4) % 4 ))
                 i=0
                 while [ "${i}" -lt "${pad}" ]; do payload="${payload}="; i=$((i + 1)); done
-                printf '%s' "${payload}" | base64 -d | jq -c '{AccountTag: .a, TunnelID: .t, TunnelSecret: .s}' > "${out}"
+                raw="$(printf '%s' "${payload}" | base64 -d)"
               else
-                # Legacy base64(JSON) credentials
-                printf '%s' "${token}" | base64 -d > "${out}"
+                raw="$(printf '%s' "${token}" | base64 -d)"
               fi
+              printf '%s' "${raw}" | jq -c '
+                if .AccountTag and .TunnelID and .TunnelSecret then
+                  {AccountTag, TunnelID, TunnelSecret}
+                elif .a and .t and .s then
+                  {AccountTag: .a, TunnelID: .t, TunnelSecret: .s}
+                else
+                  error("unsupported TUNNEL_TOKEN JSON shape")
+                end
+              ' > "${out}"
               jq -e '.AccountTag and .TunnelID and .TunnelSecret' "${out}" >/dev/null
           volumeMounts:
             - name: shared
