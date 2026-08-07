@@ -1,0 +1,12 @@
+---
+apiVersion: externaldns.k8s.io/v1alpha1
+kind: DNSEndpoint
+metadata:
+  name: cloudflare-tunnel
+  namespace: cloudflare-tunnel
+spec:
+  endpoints:
+    - dnsName: external.home-ops.nl
+      recordType: CNAME
+      targets:
+        - 047e8190-d727-407d-91b3-70d43d53ab22.cfargotunnel.com

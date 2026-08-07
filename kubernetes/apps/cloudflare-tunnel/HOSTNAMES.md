@@ -1,29 +1,29 @@
-# Cloudflare Tunnel public hostnames
+# Cloudflare Tunnel + public DNS
 
-**Source of truth:** [`ingress.yaml`](ingress.yaml). An Argo CD **PostSync** Job runs [`cloudflare-tunnel-apply.sh`](cloudflare-tunnel-apply.sh) (also via `mise run cloudflare-tunnel-apply`) to:
+**Pattern:** onedr0p/cluster-template style — tunnel is a pipe to the Cilium **external** Gateway; HTTPRoutes (and Authentik) own app routing; **external-dns** (`cloudflare-dns`) owns public DNS.
 
-1. PUT the tunnel ingress configuration (hostname → in-cluster HTTP Service)
-2. Upsert proxied DNS CNAMEs → `<TUNNEL_ID>.cfargotunnel.com` (deletes conflicting A/AAAA)
-3. Upsert wildcard `*.home-ops.nl` the same way
+```text
+Internet → Cloudflare (proxied CNAME) → cloudflared (*.home-ops.nl)
+        → https://cilium-gateway-external.kube-system.svc:443 (SNI external.home-ops.nl)
+        → HTTPRoute → Authentik proxy or OIDC app
+```
 
-Dashboard edits in Zero Trust are overwritten on the next sync.
+LAN still uses Gateway VIP `10.0.8.120` (split DNS). WAN 80/443 stay closed.
 
-| Public hostname | Origin URL |
-|-----------------|------------|
-| `authentik.home-ops.nl` | `http://authentik-server.authentik.svc.cluster.local:80` |
-| `argocd.home-ops.nl` | `http://argocd-server.argo-system.svc.cluster.local:80` |
-| `grafana.home-ops.nl` | `http://kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80` |
-| `hubble.home-ops.nl` | `http://authentik-server.authentik.svc.cluster.local:80` |
-| `longhorn.home-ops.nl` | `http://authentik-server.authentik.svc.cluster.local:80` |
-| `headlamp.home-ops.nl` | `http://authentik-server.authentik.svc.cluster.local:80` |
+| Public hostname | Backend (via Gateway HTTPRoute) |
+|-----------------|----------------------------------|
+| `authentik.home-ops.nl` | Authentik IdP |
+| `argocd.home-ops.nl` | Argo CD (OIDC) |
+| `grafana.home-ops.nl` | Grafana (OIDC) |
+| `hubble.home-ops.nl` | Authentik proxy → Hubble |
+| `longhorn.home-ops.nl` | Authentik proxy → Longhorn |
+| `headlamp.home-ops.nl` | Authentik proxy → Headlamp |
 
-Proxy apps (Hubble / Longhorn / Headlamp) **must** use Authentik’s Service.
+**Git sources of truth**
 
-**1Password**
+- Tunnel ingress: [`config.yaml`](config.yaml) (wildcard → Gateway)
+- Public DNS target for the tunnel: [`dnsendpoint.yaml`](dnsendpoint.yaml) (`external.home-ops.nl` → `<TUNNEL_ID>.cfargotunnel.com`)
+- Per-app DNS: HTTPRoutes + Gateway annotation `external-dns.alpha.kubernetes.io/target: external.home-ops.nl`
+- Auth: existing Authentik blueprints / OIDC — unchanged
 
-- Item `cloudflare-tunnel`: `TUNNEL_TOKEN`, `TUNNEL_ID`, `ACCOUNT_ID`, `ZONE_ID`
-- Item `cloudflare` / `CLOUDFLARE_DNS_TOKEN` (same token as cert-manager): needs **Zone DNS Edit** and **Account → Cloudflare Tunnel → Edit**
-
-**Local apply:** `mise run cloudflare-tunnel-apply` (loads IDs/token from 1Password when env unset). `DRY_RUN=1` prints planned calls.
-
-LAN can keep using Gateway VIP `https://10.0.8.120` via local/split DNS.
+**1Password:** item `cloudflare-tunnel` / `TUNNEL_TOKEN` only (for credentials). DNS uses item `cloudflare` / `CLOUDFLARE_DNS_TOKEN` via the `cloudflare-dns` app.

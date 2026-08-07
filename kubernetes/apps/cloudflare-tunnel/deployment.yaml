@@ -20,21 +20,62 @@ spec:
       labels:
         app.kubernetes.io/name: cloudflared
     spec:
-      containers:
-        - name: cloudflared
-          image: cloudflare/cloudflared:2026.3.0
-          args:
-            - tunnel
-            - --no-autoupdate
-            - --metrics
-            - 0.0.0.0:2000
-            - run
+      initContainers:
+        - name: credentials
+          image: alpine:3.21
+          imagePullPolicy: IfNotPresent
           env:
             - name: TUNNEL_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: cloudflare-tunnel
                   key: TUNNEL_TOKEN
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              apk add --no-cache --quiet jq
+              token="${TUNNEL_TOKEN}"
+              out=/shared/credentials.json
+              if printf '%s' "${token}" | grep -q '\.'; then
+                # JWT install token — payload maps a/t/s → credentials.json
+                payload="$(printf '%s' "${token}" | cut -d. -f2 | tr '_-' '/+')"
+                pad=$(( (4 - ${#payload} % 4) % 4 ))
+                i=0
+                while [ "${i}" -lt "${pad}" ]; do payload="${payload}="; i=$((i + 1)); done
+                printf '%s' "${payload}" | base64 -d | jq -c '{AccountTag: .a, TunnelID: .t, TunnelSecret: .s}' > "${out}"
+              else
+                # Legacy base64(JSON) credentials
+                printf '%s' "${token}" | base64 -d > "${out}"
+              fi
+              jq -e '.AccountTag and .TunnelID and .TunnelSecret' "${out}" >/dev/null
+          volumeMounts:
+            - name: shared
+              mountPath: /shared
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+      containers:
+        - name: cloudflared
+          image: cloudflare/cloudflared:2026.3.0
+          args:
+            - tunnel
+            - --config
+            - /etc/cloudflared/config.yaml
+            - --no-autoupdate
+            - run
+          volumeMounts:
+            - name: config
+              mountPath: /etc/cloudflared/config.yaml
+              subPath: config.yaml
+              readOnly: true
+            - name: shared
+              mountPath: /etc/cloudflared/credentials.json
+              subPath: credentials.json
+              readOnly: true
           resources:
             requests:
               cpu: 10m
@@ -57,6 +98,12 @@ spec:
             - name: metrics
               containerPort: 2000
               protocol: TCP
+      volumes:
+        - name: config
+          configMap:
+            name: cloudflare-tunnel-config
+        - name: shared
+          emptyDir: {}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
