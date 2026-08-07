@@ -11,4 +11,5 @@ resources:
   - loki.yaml
   - alloy.yaml
   - headlamp.yaml
+  - cloudflare-dns.yaml
   - cloudflare-tunnel.yaml

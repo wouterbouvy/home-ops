@@ -1,0 +1,11 @@
+# Locally managed tunnel config (git owns ingress). Credentials mounted at runtime.
+tunnel: 047e8190-d727-407d-91b3-70d43d53ab22
+credentials-file: /etc/cloudflared/credentials.json
+metrics: 0.0.0.0:2000
+ingress:
+  - hostname: "*.home-ops.nl"
+    originRequest:
+      http2Origin: true
+      originServerName: external.home-ops.nl
+    service: https://cilium-gateway-external.kube-system.svc.cluster.local:443
+  - service: http_status:404

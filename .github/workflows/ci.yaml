@@ -31,7 +31,7 @@ jobs:
               ! -name 'values.yaml' \
               ! -name 'ha-values.yaml' \
               ! -name 'kustomization.yaml' \
-              ! -path '*/cloudflare-tunnel/ingress.yaml' \
+              ! -name 'config.yaml' \
               | sort
           )
           kubectl kustomize kubernetes/argo/clusters/home-ops > /tmp/argo-home-ops.yaml

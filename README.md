@@ -88,16 +88,16 @@ Full mgmt bootstrap and testing still need Omni machine wiring later. When ready
 | Kubernetes API VIP (Talos L2) | `10.0.8.6` (`eno1.8`; do not use as `talosconfig` endpoint) |
 | External Gateway VIP (LAN) | `10.0.8.120` |
 | Internal Gateway VIP | `10.0.8.110` |
-| Internet ingress | Cloudflare Tunnel (`cloudflared` in `cloudflare-tunnel`) → ClusterIP Services |
+| Internet ingress | Cloudflare Tunnel → Cilium Gateway `external` → HTTPRoutes (Authentik) |
 | Example hosts | `authentik.home-ops.nl`, `argocd.home-ops.nl`, `longhorn.home-ops.nl`, `grafana.home-ops.nl`, `hubble.home-ops.nl`, `headlamp.home-ops.nl` |
 
-**Internet:** Cloudflare Tunnel (token from 1Password item `cloudflare-tunnel` / `TUNNEL_TOKEN`). Public DNS is a **proxied CNAME** to `<TUNNEL_ID>.cfargotunnel.com` (not an A record to the WAN IP or `10.0.8.120`). Hostname → Service origins and DNS are owned by git [`ingress.yaml`](kubernetes/apps/cloudflare-tunnel/ingress.yaml) and applied by an Argo PostSync Job (see [`HOSTNAMES.md`](kubernetes/apps/cloudflare-tunnel/HOSTNAMES.md)). Dashboard edits are overwritten on sync.
+**Internet:** Cloudflare Tunnel with local config ([`config.yaml`](kubernetes/apps/cloudflare-tunnel/config.yaml)) sends `*.home-ops.nl` to the Cilium Gateway Service (`cilium-gateway-external`). Public DNS is owned by **external-dns** ([`cloudflare-dns`](kubernetes/apps/cloudflare-dns/)): `external.home-ops.nl` → `<TUNNEL_ID>.cfargotunnel.com`, and app hostnames CNAME to `external.home-ops.nl`. App routing and Authentik are the same HTTPRoutes as LAN (see [`HOSTNAMES.md`](kubernetes/apps/cloudflare-tunnel/HOSTNAMES.md)). WAN 80/443 stay closed.
 
 **LAN:** Cilium Gateway VIP `10.0.8.120` with HTTPRoutes (optional split-horizon / hosts → VIP for low latency).
 
 **TLS:**
 
-- **Internet:** Cloudflare terminates visitor HTTPS; origins are HTTP to in-cluster Services.
+- **Internet:** Cloudflare terminates visitor HTTPS; origin is HTTPS to the in-cluster Gateway (SNI `external.home-ops.nl`), then HTTPRoutes → apps / Authentik.
 - **LAN Gateway:** Let's Encrypt **production** via DNS-01 (Cloudflare API): ClusterIssuer `letsencrypt-production`; Certificate `home-ops-nl` → secret `home-ops-nl-tls` (`home-ops.nl`, `*.home-ops.nl`).
 
 **Gateway exposure (LAN):** the external Gateway `http` listener only allows routes from `kube-system` (`from: Same`). The **https** listener allows routes from **all** namespaces (`from: All`). Prefer HTTPS HTTPRoutes for LAN UIs.
@@ -119,7 +119,7 @@ Public HTTPS UIs are protected by **Authentik** unless a route is explicitly doc
 
 **Add a new public UI:** prefer app-native OIDC against Authentik; if the app has no SSO, put an Authentik proxy provider in [`kubernetes/apps/authentik/blueprints.yaml`](kubernetes/apps/authentik/blueprints.yaml), attach it to the embedded outpost, and point the HTTPRoute at `authentik-server` in `authentik` (see Hubble/Longhorn + ReferenceGrant). Do **not** publish an unprotected HTTPRoute on the external Gateway.
 
-**1Password:** create item `authentik` in vault `k8s-secrets` with fields `SECRET_KEY`, `POSTGRES_PASSWORD`, `BOOTSTRAP_PASSWORD`, `BOOTSTRAP_EMAIL`, `ARGOCD_CLIENT_SECRET`, `GRAFANA_CLIENT_SECRET`. `POSTGRES_PASSWORD` is the Authentik DB role on the shared CNPG cluster. Item `cloudflare-tunnel` needs `TUNNEL_TOKEN`, `TUNNEL_ID`, `ACCOUNT_ID`, and `ZONE_ID`. Tunnel config/DNS apply reuses item `cloudflare` / `CLOUDFLARE_DNS_TOKEN` (same as cert-manager; scopes: Zone DNS Edit + Account Cloudflare Tunnel Edit). ExternalSecrets sync these into the cluster. OIDC client IDs are fixed (`argocd`, `grafana`). Local apply: `mise run cloudflare-tunnel-apply`.
+**1Password:** create item `authentik` in vault `k8s-secrets` with fields `SECRET_KEY`, `POSTGRES_PASSWORD`, `BOOTSTRAP_PASSWORD`, `BOOTSTRAP_EMAIL`, `ARGOCD_CLIENT_SECRET`, `GRAFANA_CLIENT_SECRET`. `POSTGRES_PASSWORD` is the Authentik DB role on the shared CNPG cluster. Item `cloudflare-tunnel` needs `TUNNEL_TOKEN` for the connector. Item `cloudflare` / `CLOUDFLARE_DNS_TOKEN` (Zone DNS Edit) is used by cert-manager and `cloudflare-dns` (external-dns). ExternalSecrets sync these into the cluster. OIDC client IDs are fixed (`argocd`, `grafana`).
 
 **Bootstrap admin:** log in once at `https://authentik.home-ops.nl` with `akadmin` / `BOOTSTRAP_PASSWORD`, then add your user to groups `ArgoCD Admins`, `Grafana Admins`, and/or `Home Ops Users`.
 
