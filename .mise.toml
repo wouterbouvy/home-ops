@@ -14,7 +14,7 @@ kube_context_home_ops = 'home-ops'
 kube_context_mgmt = 'management'
 
 [tools]
-"aqua:siderolabs/talos" = "1.13.7"
+"aqua:siderolabs/talos" = "1.13.8"
 "aqua:siderolabs/omni/omnictl" = "1.9.3"
 # Keep kubectl + kubelogin on the cluster Kubernetes version (kubernetes/versions.env).
 "aqua:kubernetes/kubectl" = "{{env.KUBERNETES_VERSION}}"
