@@ -18,7 +18,7 @@ kube_context_mgmt = 'management'
 "aqua:siderolabs/omni/omnictl" = "1.10.4"
 # Keep kubectl + kubelogin on the cluster Kubernetes version (kubernetes/versions.env).
 "aqua:kubernetes/kubectl" = "{{env.KUBERNETES_VERSION}}"
-"aqua:helm/helm" = "4.2.3"
+"aqua:helm/helm" = "4.2.4"
 "aqua:cilium/cilium-cli" = "0.19.7"
 "aqua:jqlang/jq" = "1.8.2"
 "aqua:mikefarah/yq" = "4.45.4"
