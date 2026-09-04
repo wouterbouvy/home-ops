@@ -15,7 +15,7 @@ kube_context_mgmt = 'management'
 
 [tools]
 "aqua:siderolabs/talos" = "1.13.9"
-"aqua:siderolabs/omni/omnictl" = "1.10.4"
+"aqua:siderolabs/omni/omnictl" = "1.11.0"
 # Keep kubectl + kubelogin on the cluster Kubernetes version (kubernetes/versions.env).
 "aqua:kubernetes/kubectl" = "{{env.KUBERNETES_VERSION}}"
 "aqua:helm/helm" = "4.2.4"
